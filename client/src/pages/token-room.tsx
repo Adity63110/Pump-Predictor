@@ -7,7 +7,6 @@ import { RugScale } from "@/components/rug-scale";
 import { ChatBox } from "@/components/chat-box";
 import { ArrowLeft, Copy, ExternalLink, ThumbsUp, ThumbsDown, AlertOctagon, Share2, Activity } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip } from "recharts";
 import { useToast } from "@/hooks/use-toast";
 
 export default function TokenRoom() {
@@ -123,36 +122,13 @@ export default function TokenRoom() {
             </div>
           </div>
 
-          {/* Chart Area (Simplified Visualization) */}
-          <div className="h-[300px] w-full bg-card/30 rounded-xl border border-border/50 p-4 relative overflow-hidden group">
-            <div className="absolute top-4 left-4 z-10">
-              <div className="text-2xl font-mono font-bold text-white">
-                ${token.chartData.length > 0 ? token.chartData[token.chartData.length - 1].price.toLocaleString(undefined, { maximumSignificantDigits: 6 }) : '0.00'}
-              </div>
-              <div className="text-xs text-w-green font-mono">
-                +{(Math.random() * 5).toFixed(2)}% (24h)
-              </div>
-            </div>
-            <div className="absolute top-4 right-4 z-10 flex gap-2">
-                <span className="text-xs bg-black/50 px-2 py-1 rounded text-w-green font-mono">LIVE</span>
-            </div>
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={token.chartData}>
-                <defs>
-                  <linearGradient id="colorPrice" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#22c55e" stopOpacity={0.2}/>
-                    <stop offset="95%" stopColor="#22c55e" stopOpacity={0}/>
-                  </linearGradient>
-                </defs>
-                <XAxis dataKey="time" hide />
-                <YAxis hide domain={['auto', 'auto']} />
-                <Tooltip 
-                    contentStyle={{ backgroundColor: '#18181b', border: '1px solid #27272a', borderRadius: '8px' }}
-                    itemStyle={{ color: '#fff', fontFamily: 'monospace' }}
-                />
-                <Area type="monotone" dataKey="price" stroke="#22c55e" strokeWidth={2} fillOpacity={1} fill="url(#colorPrice)" />
-              </AreaChart>
-            </ResponsiveContainer>
+          {/* Chart Area (DexScreener Embed) */}
+          <div className="h-[500px] w-full bg-card/30 rounded-xl border border-border/50 overflow-hidden relative group">
+            <iframe 
+              src={`https://dexscreener.com/solana/${token.ca}?embed=1&theme=dark&trades=0&info=0`}
+              style={{ width: '100%', height: '100%', border: '0' }}
+              title="DexScreener Chart"
+            />
           </div>
 
           {/* Voting Action Area */}
