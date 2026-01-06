@@ -247,27 +247,6 @@ export default function AIAnalyser() {
                 </Card>
               </div>
 
-              <Card className="border-primary/20 bg-primary/5">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-bold flex items-center gap-2">
-                    <FlaskConical className="h-4 w-4 text-primary" />
-                    On-chain Bonding Progress
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-2">
-                  <div className="flex justify-between items-center text-sm font-bold">
-                    <span>{analysis.bondingProgress}% Complete</span>
-                    <span className="text-muted-foreground text-xs font-medium">Real-time State</span>
-                  </div>
-                  <Progress value={analysis.bondingProgress} className="h-3 bg-w-green" />
-                  <p className="text-[10px] text-muted-foreground italic">
-                    {analysis.isOnChainBonding 
-                      ? "Percentage of bonding curve completed based on SOL raised (verifiable on-chain)."
-                      : "Bonding data currently unavailable."}
-                  </p>
-                </CardContent>
-              </Card>
-
               <Card className="bg-primary/5 border-primary/20 flex-1">
                 <CardHeader className="flex flex-row items-center justify-between">
                   <CardTitle>AI Reasoning & Verdict</CardTitle>
