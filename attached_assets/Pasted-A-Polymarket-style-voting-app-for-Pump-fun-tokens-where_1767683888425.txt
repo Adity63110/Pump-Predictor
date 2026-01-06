@@ -1,0 +1,137 @@
+A Polymarket-style voting app for Pump.fun tokens, where anyone can paste a CA (contract address) and open a public verdict room:
+
+Is this token a W or Trash?
+
+The crowd decides. Data assists. No fake certainty, only signals.
+
+How It Works (User Flow)
+1. Create a Token Room
+
+User pastes:
+
+Contract Address (CA)
+
+System auto-fetches:
+
+Token name & symbol
+
+Chart preview
+
+Dev wallet %
+
+Mint / freeze status
+
+Launch time
+
+Then the user chooses:
+
+🟢 W (Good / Hold / Potential)
+
+🔴 Trash (Risky / Likely Rug)
+
+This instantly creates a public room, like a Polymarket market.
+
+2. Voting System (Simple & Honest)
+
+Users vote W or Trash
+
+1 wallet = 1 vote (or weighted by reputation)
+
+Votes are visible as:
+
+Percentage bar
+
+Live count
+
+Votes lock for a short time window (prevents flip-flopping)
+
+Example:
+
+W: 63% 🟢 | Trash: 37% 🔴
+
+3. Live Chat per Token 🗣️
+
+Each token room has:
+
+Real-time chat
+
+Messages tagged:
+
+🧪 “Dev wallet moved”
+
+🐳 “Whale bought”
+
+🚨 “LP removed”
+
+Chat becomes the human alpha layer
+
+This is where traders hang out.
+
+Rug Scale (Crowd + Data = Trust)
+Rug Scale Formula (Hybrid)
+
+Combine:
+
+🧠 User Votes (honest crowd signal)
+
+⛓️ On-chain checks
+
+🕵️ Historical dev behavior (if available)
+
+Display as:
+
+Rug Scale: 28 / 100 (Low Risk 🟢)
+or
+Rug Scale: 81 / 100 (High Risk 🔴)
+
+Key:
+👉 Make it clear this is probability, not financial advice.
+
+Anti-Manipulation (Very Important)
+
+To keep votes honest:
+
+Wallet age minimum
+
+Small SOL balance required to vote
+
+Vote weight increases with:
+
+Account age
+
+Past accuracy (voted W on tokens that survived)
+
+Dev wallets cannot vote on their own token
+
+This makes your platform credible.
+
+Polymarket-Style UI (Visual Feel)
+
+Dark, clean, minimal
+
+Big W vs Trash buttons
+
+Progress bar instead of charts overload
+
+Token rooms feel like “markets”
+
+Home page = trending tokens + most debated
+
+Think:
+
+Polymarket layout
+
+Pump.fun chaos
+− clutter
+
+Why This Is a Strong Idea 💎
+
+Crowd intelligence works before price action
+
+Social + data beats charts alone
+
+No need to predict price, only survival
+
+Traders love arguing, voting, and being right
+
+This is sticky.
