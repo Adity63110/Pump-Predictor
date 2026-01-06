@@ -98,16 +98,44 @@ export default function AIAnalyser() {
 
           <div className="grid gap-6 md:grid-cols-2">
             <div className="space-y-6">
+              {analysis.devDetectionTrail && (
+                <Card className="border-primary/20 bg-primary/5">
+                  <CardHeader>
+                    <CardTitle className="text-sm font-bold flex items-center gap-2">
+                      <Search className="h-4 w-4" />
+                      Dev Detection Trail
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    {analysis.devDetectionTrail.map((trail: any, i: number) => (
+                      <div key={i} className={`flex items-start gap-3 p-2 rounded border ${trail.detected ? 'bg-background border-primary/20' : 'opacity-40 grayscale border-transparent'}`}>
+                        <div className={`mt-1 p-1 rounded-full ${trail.detected ? 'bg-primary/20 text-primary' : 'bg-muted text-muted-foreground'}`}>
+                          {trail.detected ? <ShieldCheck className="h-3 w-3" /> : <Activity className="h-3 w-3" />}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex justify-between items-center gap-2">
+                            <span className="text-xs font-bold truncate">{trail.pattern}</span>
+                            {trail.detected && <span className="text-[10px] bg-primary/10 text-primary px-1 rounded uppercase tracking-tighter">Matched</span>}
+                          </div>
+                          <p className="text-[10px] text-muted-foreground truncate font-mono">{trail.wallet}</p>
+                          <p className="text-[10px] italic leading-tight mt-0.5">{trail.detail}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </CardContent>
+                </Card>
+              )}
+
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <Users className="h-5 w-5 text-purple-500" />
-                      Top Holders Analysis
+                      Inferred Holder Clusters
                     </div>
                     {analysis.topConcentration && (
                       <span className="text-xs font-bold text-muted-foreground bg-muted px-2 py-1 rounded">
-                        Total: {analysis.topConcentration}
+                        Top 5: {analysis.topConcentration}
                       </span>
                     )}
                   </CardTitle>
@@ -130,7 +158,7 @@ export default function AIAnalyser() {
                         </div>
                       </div>
                     )) : (
-                      <div className="text-center text-muted-foreground py-4 italic">No holder data available</div>
+                      <div className="text-center text-muted-foreground py-4 italic">No cluster data available</div>
                     )}
                   </div>
                 </CardContent>
