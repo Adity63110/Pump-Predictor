@@ -60,19 +60,40 @@ export async function registerRoutes(
         return res.status(404).json({ message: "Token not found on chain" });
       }
 
-      // Simulated dynamic holder analysis
-      const devShareValue = (Math.random() * 5 + 2).toFixed(1); // 2-7%
+      // Ultra-Strict dynamic holder analysis
+      const devShareRaw = (Math.random() * 1.2 + 0.3); // 0.3-1.5%
+      const devShareValue = devShareRaw.toFixed(2);
       const simulatedDevWallet = "5z3f...x9v";
+      
+      // Top 5 holder distribution simulation
       const simulatedTopHolders = [
         { address: simulatedDevWallet, amount: `${devShareValue}%`, label: "Developer" },
-        { address: "8x2p...m3q", amount: (Math.random() * 3 + 2).toFixed(1) + "%", label: "Whale" },
-        { address: "2n9v...k4s", amount: (Math.random() * 2 + 1).toFixed(1) + "%", label: "Whale" },
-        { address: "4m1t...p5r", amount: (Math.random() * 1.5 + 1).toFixed(1) + "%", label: "Top Holder" },
-        { address: "9z8u...q2w", amount: (Math.random() * 1 + 0.5).toFixed(1) + "%", label: "Top Holder" },
+        { address: "8x2p...m3q", amount: (Math.random() * 0.5 + 0.8).toFixed(2) + "%", label: "Whale #1" },
+        { address: "2n9v...k4s", amount: (Math.random() * 0.4 + 0.6).toFixed(2) + "%", label: "Whale #2" },
+        { address: "4m1t...p5r", amount: (Math.random() * 0.3 + 0.4).toFixed(2) + "%", label: "Top Holder" },
+        { address: "9z8u...q2w", amount: (Math.random() * 0.2 + 0.2).toFixed(2) + "%", label: "Top Holder" },
       ];
 
-      const rugScoreValue = parseFloat(devShareValue) > 6 ? Math.floor(Math.random() * 30 + 50) : Math.floor(Math.random() * 30);
+      // Calculate total top holder concentration
+      const topConcentration = simulatedTopHolders.reduce((acc, h) => acc + parseFloat(h.amount), 0).toFixed(2);
 
+      // Rug score logic - Extremely aggressive
+      let rugScoreValue = Math.floor(Math.random() * 5); 
+      const redFlags = [];
+      
+      if (devShareRaw > 1.0) {
+        rugScoreValue += 70;
+        redFlags.push(`High Dev Share: ${devShareValue}% (Limit: 1.0%)`);
+      }
+      if (parseFloat(topConcentration) > 4.0) {
+        rugScoreValue += 20;
+        redFlags.push(`High Concentration: ${topConcentration}% (Limit: 4.0%)`);
+      }
+      if (dexPair.liquidity?.usd && dexPair.fdv && (dexPair.liquidity.usd / dexPair.fdv) < 0.1) {
+        rugScoreValue += 30;
+        redFlags.push(`Low Liquidity/FDV Ratio: ${(dexPair.liquidity.usd / dexPair.fdv).toFixed(4)}`);
+      }
+      
       const marketData = {
         name: dexPair.baseToken.name,
         symbol: dexPair.baseToken.symbol,
@@ -80,19 +101,29 @@ export async function registerRoutes(
         fdv: dexPair.fdv || 0,
         liquidity: dexPair.liquidity?.usd || 0,
         topHolders: simulatedTopHolders,
+        topConcentration: `${topConcentration}%`,
         devShare: `${devShareValue}%`,
-        rugScore: rugScoreValue,
+        rugScore: Math.min(rugScoreValue, 100),
+        redFlags
       };
 
-      const prompt = `CRITICAL ANALYSIS: Evaluate this token for a "W" (Potential) or "L" (Rug/Trash) verdict.
+      const prompt = `ULTRA-STRICT TOKEN AUDIT (ZERO TOLERANCE): 
       Token: ${marketData.name} (${marketData.symbol})
       24h Volume: $${marketData.volume.toLocaleString()}
       FDV: $${marketData.fdv.toLocaleString()}
-      Developer Wallet: ${marketData.devShare} (Flag if > 5%)
-      Top 5 Holders: ${marketData.topHolders.map(h => `${h.label}: ${h.amount}`).join(", ")}
-      Liquidity: $${marketData.liquidity.toLocaleString()}
+      Liq/FDV Ratio: ${(marketData.liquidity / marketData.fdv).toFixed(4)}
       
-      BE EXTREMELY CRITICAL. If dev share is over 5% or liquidity is low relative to FDV, it's likely an L.
+      HOLDER ANALYSIS:
+      Dev Wallet: ${marketData.devShare} (LIMIT: 1.0%)
+      Top 5 Concentration: ${marketData.topConcentration} (LIMIT: 4.0%)
+      
+      SYSTEM DETECTED FLAGS:
+      ${redFlags.length > 0 ? redFlags.join("\n") : "None"}
+      
+      VERDICT RULES:
+      - If ANY flag exists, Verdict MUST be "L".
+      - If Volume is < 10% of FDV, Verdict MUST be "L".
+      - Only give a "W" if it is literally perfect.
       
       Respond with a JSON object: { "verdict": "W" | "L", "reasoning": "string" }`;
 

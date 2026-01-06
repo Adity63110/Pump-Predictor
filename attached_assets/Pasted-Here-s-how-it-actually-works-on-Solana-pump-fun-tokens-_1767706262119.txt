@@ -1,0 +1,133 @@
+Here’s how it actually works on Solana / pump.fun tokens 👇
+
+1. Tracking all holders
+
+On Solana, every token has a mint address. From that:
+
+Each holder owns a Token Account tied to that mint
+
+These token accounts store:
+
+wallet address (owner)
+
+token balance
+
+How apps track holders
+
+They query the Solana RPC:
+
+getProgramAccounts (for SPL Token program)
+
+Filter by the mint address
+
+This instantly returns:
+
+all wallets holding the token
+
+exact balances
+
+percentage of supply
+
+That’s how pump.fun, Solscan, Birdeye, Dexscreener etc show holder lists.
+
+No permission needed. It’s public by design.
+
+2. Tracking the dev wallet
+
+There’s no official “DEV” label on-chain. Apps infer it using patterns 🕵️‍♂️
+
+Common methods:
+
+a) Token creation trail
+
+The wallet that:
+
+created the token
+
+paid deploy fees
+
+initialized the mint
+→ marked as deployer / dev
+
+b) First liquidity wallet
+
+Wallet that:
+
+seeded liquidity
+
+received initial supply
+→ often tagged as dev
+
+c) Supply movement analysis
+
+Wallet holding a large % early
+
+Wallet that:
+
+sends tokens to many wallets
+
+controls liquidity actions
+→ flagged as dev / team
+
+d) Known labels
+
+If the wallet interacted with pump.fun deploy contracts
+
+Or reused across launches
+→ gets labeled automatically
+
+3. How platforms show it visually
+
+Apps maintain an indexer (their own database):
+
+Scan every transaction
+
+Build wallet graphs
+
+Tag wallets (dev, whale, sniper, LP)
+
+Update in real time
+
+That’s why:
+
+Dev sells are detected instantly
+
+Holder count updates live
+
+“Dev holding %” appears on charts
+
+4. Can dev wallets hide?
+
+Short answer: not really 😈
+
+They can:
+
+split tokens into many wallets
+
+route through PDAs
+
+delay sells
+
+But:
+
+transaction graph still links them
+
+clustering analysis exposes patterns
+
+advanced trackers still flag it
+
+Transparency is baked into Solana.
+
+5. If you want to build this
+
+Core ingredients:
+
+Solana RPC
+
+SPL Token Program ID
+
+Indexer (even a simple script works)
+
+Balance + tx history parser
+
+That’s exactly how pump.fun trackers are made.

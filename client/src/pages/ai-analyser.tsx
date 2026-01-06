@@ -97,29 +97,63 @@ export default function AIAnalyser() {
           </div>
 
           <div className="grid gap-6 md:grid-cols-2">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Users className="h-5 w-5 text-purple-500" />
-                  Top Holders Analysis
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {analysis.topHolders.map((holder: any, i: number) => (
-                    <div key={i} className="flex justify-between items-center p-3 rounded-lg bg-muted/30 border border-border/50">
-                      <div className="flex items-center gap-3">
-                        <div className="text-xs font-mono text-muted-foreground bg-muted px-2 py-1 rounded">
-                          {holder.address}
-                        </div>
-                        <span className="text-sm font-semibold">{holder.label}</span>
-                      </div>
-                      <span className="font-bold text-primary">{holder.amount}</span>
+            <div className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Users className="h-5 w-5 text-purple-500" />
+                      Top Holders Analysis
                     </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+                    {analysis.topConcentration && (
+                      <span className="text-xs font-bold text-muted-foreground bg-muted px-2 py-1 rounded">
+                        Total: {analysis.topConcentration}
+                      </span>
+                    )}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {Array.isArray(analysis.topHolders) ? analysis.topHolders.map((holder: any, i: number) => (
+                      <div key={i} className="flex justify-between items-center p-3 rounded-lg bg-muted/30 border border-border/50">
+                        <div className="flex items-center gap-3">
+                          <div className="text-xs font-mono text-muted-foreground bg-muted px-2 py-1 rounded">
+                            {holder.address}
+                          </div>
+                          <span className="text-sm font-semibold">{holder.label}</span>
+                        </div>
+                        <div className="flex flex-col items-end">
+                          <span className="font-bold text-primary">{holder.amount}</span>
+                          {parseFloat(holder.amount) >= 1.0 && (
+                            <span className="text-[10px] text-trash-red font-bold uppercase tracking-tighter">High Concentration</span>
+                          )}
+                        </div>
+                      </div>
+                    )) : (
+                      <div className="text-center text-muted-foreground py-4 italic">No holder data available</div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {analysis.redFlags && analysis.redFlags.length > 0 && (
+                <Card className="border-trash-red/50 bg-trash-red/5">
+                  <CardHeader>
+                    <CardTitle className="text-sm font-bold text-trash-red flex items-center gap-2">
+                      <ShieldAlert className="h-4 w-4" />
+                      Detected Red Flags
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <ul className="list-disc list-inside space-y-1 text-sm text-trash-red/90 font-medium">
+                      {analysis.redFlags.map((flag: string, i: number) => (
+                        <li key={i}>{flag}</li>
+                      ))}
+                    </ul>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
 
             <div className="grid gap-6">
               <div className="grid grid-cols-2 gap-4">
