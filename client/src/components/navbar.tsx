@@ -1,7 +1,6 @@
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
-import { SiOpenai } from "react-icons/si";
-import { LayoutDashboard, TrendingUp, Home } from "lucide-react";
+import { TrendingUp, Home, BrainCircuit } from "lucide-react";
 
 export function Navbar() {
   const [location] = useLocation();
@@ -9,7 +8,7 @@ export function Navbar() {
   const navItems = [
     { href: "/", label: "Home", icon: Home },
     { href: "/markets", label: "Markets", icon: TrendingUp },
-    { href: "/ai-analyser", label: "AI Analyser", icon: SiOpenai },
+    { href: "/ai-analyser", label: "AI Analyser", icon: BrainCircuit },
   ];
 
   return (
