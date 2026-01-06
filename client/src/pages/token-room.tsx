@@ -202,7 +202,7 @@ export default function TokenRoom() {
              
              {userVote && (
                  <p className="text-center text-xs text-muted-foreground mt-4 animate-in fade-in slide-in-from-bottom-2">
-                     Voting locked for 10 minutes to prevent manipulation.
+                     Your verdict has been recorded.
                  </p>
              )}
           </div>
