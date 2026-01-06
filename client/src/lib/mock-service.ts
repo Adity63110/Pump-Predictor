@@ -108,7 +108,46 @@ export const mockService = {
   getToken: async (caOrId: string): Promise<Token | undefined> => {
     await new Promise((resolve) => setTimeout(resolve, 400));
     MOCK_TOKENS = getPersistedTokens();
-    return MOCK_TOKENS.find((t) => t.id === caOrId || t.ca === caOrId || t.symbol === caOrId);
+    const existing = MOCK_TOKENS.find((t) => t.id === caOrId || t.ca === caOrId || t.symbol === caOrId);
+    if (existing) return existing;
+
+    // Simulate "creating" a room for a new CA
+    if (caOrId.length > 30) { // Simple CA check
+      const newToken: Token = {
+        id: caOrId,
+        name: "Unknown Token",
+        symbol: "???",
+        ca: caOrId,
+        imageUrl: "",
+        marketCap: Math.floor(Math.random() * 500000),
+        launchTime: new Date().toISOString(),
+        devWalletPct: parseFloat((Math.random() * 10).toFixed(2)),
+        isFrozen: false,
+        votes: { w: 0, trash: 0 },
+        rugScale: Math.floor(Math.random() * 100),
+        chartData: generateChartData(),
+      };
+      
+      // Try to fetch real data from DexScreener
+      try {
+        const response = await fetch(`https://api.dexscreener.com/latest/dex/tokens/${caOrId}`);
+        const data = await response.json();
+        if (data.pairs && data.pairs.length > 0) {
+          const pair = data.pairs[0];
+          newToken.name = pair.baseToken.name;
+          newToken.symbol = pair.baseToken.symbol;
+          newToken.marketCap = pair.fdv || pair.marketCap || newToken.marketCap;
+          newToken.imageUrl = pair.info?.imageUrl || "";
+        }
+      } catch (e) {
+        console.error("Failed to fetch real token data", e);
+      }
+
+      MOCK_TOKENS.push(newToken);
+      localStorage.setItem('token_votes', JSON.stringify(MOCK_TOKENS));
+      return newToken;
+    }
+    return undefined;
   },
   
   getTrending: async (): Promise<Token[]> => {
