@@ -1,0 +1,175 @@
+What the AI Outputs (Very Important)
+❌ Don’t output:
+
+“Safe”
+
+“Profitable”
+
+“Guaranteed”
+
+✅ Do output:
+
+Risk Level: Low / Medium / High
+
+Confidence Level: Weak / Moderate / Strong
+
+Key Reasons (this builds trust)
+
+Example:
+
+AI Verdict: Medium Risk
+Confidence: Moderate
+
+Reasons:
+
+High early buyer clustering
+
+Dev wallet holds 18% supply
+
+Community sentiment mixed
+
+No freeze authority detected
+
+This feels intelligent and honest.
+
+🔹 AI Architecture (Simple but Powerful)
+Step 1: Feature Builder (Backend)
+
+Convert raw data → clean features:
+
+{
+  "token_age_minutes": 12,
+  "dev_supply_percent": 18,
+  "early_buyers": 7,
+  "cluster_score": 0.72,
+  "w_ratio": 0.61,
+  "trash_ratio": 0.39,
+  "chat_warning_density": 0.28
+}
+
+Step 2: Rule + Model Hybrid (Best Approach)
+
+Don’t go full black-box ML at first.
+
+Use:
+
+Rule-based scoring (fast, explainable)
+
+AI for summary + reasoning
+
+Example:
+
+Hard red flags = override
+
+Soft signals = weighted
+
+Step 3: AI Explanation Layer
+
+Use the AI to:
+
+Summarize risks
+
+Explain why something looks dangerous
+
+Translate numbers into human language
+
+This is where AI shines ✨
+
+🔹 How to Present It in the App (UX)
+In Token Room:
+
+Section called “AI Insight”
+
+Badge:
+
+🟢 Low Risk
+
+🟡 Medium Risk
+
+🔴 High Risk
+
+Expandable explanation
+
+Important:
+
+Always show:
+
+“AI analysis is probabilistic and based on available data.”
+
+🔹 Profit Angle (Handled Safely)
+
+Instead of “profitable”, use:
+
+“Momentum Potential”
+
+“Survival Likelihood”
+
+“Market Health”
+
+Example:
+
+“Short-term momentum appears strong, but structural risk remains.”
+
+This avoids false promises.
+
+🔹 Training the AI (Without Breaking Anything)
+
+You don’t need huge datasets initially.
+
+Start with:
+
+Historical Pump.fun tokens
+
+Label outcomes:
+
+Survived
+
+Rugged
+
+Slow bleed
+
+Train the AI to:
+
+Recognize patterns, not price targets
+
+🔹 Legal + Trust Shield (DO NOT SKIP)
+
+In Docs + UI:
+
+“Not financial advice”
+
+“No guarantees”
+
+“Educational and analytical tool”
+
+Also avoid words like:
+❌ predict
+❌ guarantee
+❌ profit assured
+
+Use:
+✅ assess
+✅ analyze
+✅ estimate risk
+
+TL;DR
+
+Your AI should be:
+
+A risk analyst, not a trader
+
+Explainable, not mysterious
+
+Probabilistic, not absolute
+
+Helpful, not hypey
+
+If you want next, I can:
+
+Design the AI prompt
+
+Define exact features
+
+Write AI output templates
+
+Integrate AI into your AI Analysis page

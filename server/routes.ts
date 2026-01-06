@@ -131,11 +131,13 @@ export async function registerRoutes(
       ${redFlags.filter(f => f.includes("Insider") || f.includes("Supply")).join("\n") || "None (Insider Scan Clean)"}
       
       VERDICT CRITERIA:
-      - If Insider Cluster or Supply Clumping is detected, Verdict is "L".
-      - Your reasoning must justify why the holder distribution alone makes this a "W" or "L".
-      - Ignore general market metrics like volume or market cap for the final verdict decision.
-      
-      Respond with a JSON object: { "verdict": "W" | "L", "reasoning": "string" }`;
+      - If Insider Cluster or Supply Clumping is detected, Risk Level is "High".
+      - Confidence level is "Strong" if clear patterns are detected, otherwise "Weak" or "Moderate".
+      - Your reasoning must justify the Risk Level using holder distribution data.
+      - Use terms like "Momentum Potential", "Survival Likelihood", or "Market Health" instead of profitability.
+      - AVOID terms like "Safe", "Profitable", or "Guaranteed".
+
+      Respond with a JSON object: { "riskLevel": "Low" | "Medium" | "High", "confidence": "Weak" | "Moderate" | "Strong", "reasons": ["string"], "reasoning": "string" }`;
 
       const response = await openai.chat.completions.create({
         model: "gpt-4o",
@@ -163,7 +165,9 @@ export async function registerRoutes(
 
       res.json({
         ...marketData,
-        verdict: analysis.verdict,
+        riskLevel: analysis.riskLevel,
+        confidence: analysis.confidence,
+        reasons: analysis.reasons,
         reasoning: analysis.reasoning,
         roomId: market.id
       });
