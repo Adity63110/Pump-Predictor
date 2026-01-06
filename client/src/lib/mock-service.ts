@@ -94,7 +94,7 @@ const getPersistedTokens = (): Token[] => {
   return initial;
 };
 
-let MOCK_TOKENS = getPersistedTokens();
+export let MOCK_TOKENS = getPersistedTokens();
 
 const MOCK_MESSAGES: ChatMessage[] = [
   { id: "1", user: "Anon592", text: "Dev sold 2%", type: "alert-dev", timestamp: "10:02" },

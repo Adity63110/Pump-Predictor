@@ -1,26 +1,28 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Search, TrendingUp, AlertTriangle, ArrowRight } from "lucide-react";
-import { MOCK_TOKENS } from "@/lib/mock-service";
+import { mockService, Token } from "@/lib/mock-service";
 import { VotingBar } from "@/components/voting-bar";
 import { cn } from "@/lib/utils";
 
 export default function Home() {
   const [ca, setCa] = useState("");
+  const [tokens, setTokens] = useState<Token[]>([]);
   const [, setLocation] = useLocation();
+
+  useEffect(() => {
+    mockService.getTrending().then(setTokens);
+  }, []);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (ca.trim()) {
-      // For prototype, just route to the first mock token if random string
-      // In real app, this would route to /room/:ca
-      const mockMatch = MOCK_TOKENS.find(t => t.ca.includes(ca) || t.symbol.includes(ca.toUpperCase()));
+      const mockMatch = tokens.find(t => t.ca.includes(ca) || t.symbol.includes(ca.toUpperCase()));
       if (mockMatch) {
         setLocation(`/room/${mockMatch.id}`);
       } else {
-         // Fallback for demo
         setLocation(`/room/pepe-the-frog`);
       }
     }
@@ -74,7 +76,7 @@ export default function Home() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {MOCK_TOKENS.map((token) => (
+          {tokens.map((token) => (
             <Link key={token.id} href={`/room/${token.id}`}>
               <div className="group relative bg-card/50 hover:bg-card border border-border hover:border-border/80 transition-all rounded-xl overflow-hidden cursor-pointer hover:shadow-lg hover:shadow-primary/5 p-5">
                 <div className="flex justify-between items-start mb-4">
