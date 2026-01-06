@@ -60,16 +60,18 @@ export async function registerRoutes(
         return res.status(404).json({ message: "Token not found on chain" });
       }
 
-      // Simulated accurate holder analysis for the prototype
-      // In a real app, this would use Helius or another Solana RPC
+      // Simulated dynamic holder analysis
+      const devShareValue = (Math.random() * 5 + 2).toFixed(1); // 2-7%
       const simulatedDevWallet = "5z3f...x9v";
       const simulatedTopHolders = [
-        { address: simulatedDevWallet, amount: "4.8%", label: "Developer" },
-        { address: "8x2p...m3q", amount: "3.2%", label: "Whale" },
-        { address: "2n9v...k4s", amount: "2.9%", label: "Whale" },
-        { address: "4m1t...p5r", amount: "2.5%", label: "Top Holder" },
-        { address: "9z8u...q2w", amount: "2.1%", label: "Top Holder" },
+        { address: simulatedDevWallet, amount: `${devShareValue}%`, label: "Developer" },
+        { address: "8x2p...m3q", amount: (Math.random() * 3 + 2).toFixed(1) + "%", label: "Whale" },
+        { address: "2n9v...k4s", amount: (Math.random() * 2 + 1).toFixed(1) + "%", label: "Whale" },
+        { address: "4m1t...p5r", amount: (Math.random() * 1.5 + 1).toFixed(1) + "%", label: "Top Holder" },
+        { address: "9z8u...q2w", amount: (Math.random() * 1 + 0.5).toFixed(1) + "%", label: "Top Holder" },
       ];
+
+      const rugScoreValue = parseFloat(devShareValue) > 6 ? Math.floor(Math.random() * 30 + 50) : Math.floor(Math.random() * 30);
 
       const marketData = {
         name: dexPair.baseToken.name,
@@ -78,16 +80,19 @@ export async function registerRoutes(
         fdv: dexPair.fdv || 0,
         liquidity: dexPair.liquidity?.usd || 0,
         topHolders: simulatedTopHolders,
-        devShare: "4.8%",
-        rugScore: Math.floor(Math.random() * 40), // More realistic for "potentially good" tokens found on Dex
+        devShare: `${devShareValue}%`,
+        rugScore: rugScoreValue,
       };
 
-      const prompt = `Analyse this token data and give a verdict (W or L). 
+      const prompt = `CRITICAL ANALYSIS: Evaluate this token for a "W" (Potential) or "L" (Rug/Trash) verdict.
       Token: ${marketData.name} (${marketData.symbol})
-      Volume: $${marketData.volume.toLocaleString()}
+      24h Volume: $${marketData.volume.toLocaleString()}
       FDV: $${marketData.fdv.toLocaleString()}
-      Dev Share: ${marketData.devShare}
+      Developer Wallet: ${marketData.devShare} (Flag if > 5%)
       Top 5 Holders: ${marketData.topHolders.map(h => `${h.label}: ${h.amount}`).join(", ")}
+      Liquidity: $${marketData.liquidity.toLocaleString()}
+      
+      BE EXTREMELY CRITICAL. If dev share is over 5% or liquidity is low relative to FDV, it's likely an L.
       
       Respond with a JSON object: { "verdict": "W" | "L", "reasoning": "string" }`;
 

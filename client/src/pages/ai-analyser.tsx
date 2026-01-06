@@ -148,19 +148,26 @@ export default function AIAnalyser() {
                 </Card>
               </div>
 
-              <Card className="bg-primary/5 border-primary/20 flex-1">
-                <CardHeader>
-                  <CardTitle>AI Reasoning</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-lg leading-relaxed">{analysis.reasoning}</p>
-                  <div className="mt-8 flex justify-center">
-                    <Button size="lg" onClick={() => setLocation(`/room/${analysis.roomId}`)} className="gap-2">
-                      Visit Voting Room <ArrowRight className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
+          <Card className="bg-primary/5 border-primary/20 flex-1">
+            <CardHeader className="flex flex-row items-center justify-between">
+              <CardTitle>AI Reasoning & Verdict</CardTitle>
+              <div className={`px-4 py-1 rounded-full text-sm font-bold border ${
+                analysis.verdict === 'W' 
+                  ? 'bg-w-green/10 text-w-green border-w-green/20' 
+                  : 'bg-trash-red/10 text-trash-red border-trash-red/20'
+              }`}>
+                {analysis.verdict === 'W' ? 'BULLISH SIGNALS' : 'BEARISH SIGNALS'}
+              </div>
+            </CardHeader>
+            <CardContent>
+              <p className="text-lg leading-relaxed text-foreground/90 italic">"{analysis.reasoning}"</p>
+              <div className="mt-8 flex justify-center">
+                <Button size="lg" onClick={() => setLocation(`/room/${analysis.roomId}`)} className="gap-2 shadow-lg hover-elevate">
+                  Enter Community Verdict Room <ArrowRight className="h-4 w-4" />
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
             </div>
           </div>
         </div>
