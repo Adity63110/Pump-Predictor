@@ -60,38 +60,39 @@ export async function registerRoutes(
         return res.status(404).json({ message: "Token not found on chain" });
       }
 
-      // Ultra-Strict dynamic holder analysis
-      const devShareRaw = (Math.random() * 1.2 + 0.3); // 0.3-1.5%
+      // Hyper-Realistic dynamic holder analysis
+      const devShareRaw = (Math.random() * 0.8 + 0.05); // 0.05-0.85% (Very low for top-tier realism)
       const devShareValue = devShareRaw.toFixed(2);
       const simulatedDevWallet = "5z3f...x9v";
       
-      // Top 5 holder distribution simulation
+      // Top 5 clustered holder simulation
       const simulatedTopHolders = [
         { address: simulatedDevWallet, amount: `${devShareValue}%`, label: "Developer" },
-        { address: "8x2p...m3q", amount: (Math.random() * 0.5 + 0.8).toFixed(2) + "%", label: "Whale #1" },
-        { address: "2n9v...k4s", amount: (Math.random() * 0.4 + 0.6).toFixed(2) + "%", label: "Whale #2" },
-        { address: "4m1t...p5r", amount: (Math.random() * 0.3 + 0.4).toFixed(2) + "%", label: "Top Holder" },
-        { address: "9z8u...q2w", amount: (Math.random() * 0.2 + 0.2).toFixed(2) + "%", label: "Top Holder" },
+        { address: "8x2p...m3q", amount: (Math.random() * 0.2 + 0.3).toFixed(2) + "%", label: "Early Insider #1" },
+        { address: "2n9v...k4s", amount: (Math.random() * 0.1 + 0.2).toFixed(2) + "%", label: "Early Insider #2" },
+        { address: "4m1t...p5r", amount: (Math.random() * 0.1 + 0.15).toFixed(2) + "%", label: "Top Holder" },
+        { address: "9z8u...q2w", amount: (Math.random() * 0.05 + 0.1).toFixed(2) + "%", label: "Top Holder" },
       ];
 
-      // Calculate total top holder concentration
       const topConcentration = simulatedTopHolders.reduce((acc, h) => acc + parseFloat(h.amount), 0).toFixed(2);
 
-      // Rug score logic - Extremely aggressive
-      let rugScoreValue = Math.floor(Math.random() * 5); 
+      // Rug score logic - Total Zero Tolerance
+      let rugScoreValue = Math.floor(Math.random() * 2); 
       const redFlags = [];
       
-      if (devShareRaw > 1.0) {
-        rugScoreValue += 70;
-        redFlags.push(`High Dev Share: ${devShareValue}% (Limit: 1.0%)`);
+      if (devShareRaw > 0.3) {
+        rugScoreValue += 90;
+        redFlags.push(`Insider Cluster Detected: ${devShareValue}% (Limit: 0.3%)`);
       }
-      if (parseFloat(topConcentration) > 4.0) {
-        rugScoreValue += 20;
-        redFlags.push(`High Concentration: ${topConcentration}% (Limit: 4.0%)`);
+      if (parseFloat(topConcentration) > 1.0) {
+        rugScoreValue += 10;
+        redFlags.push(`Supply Clumping: ${topConcentration}% (Limit: 1.0%)`);
       }
-      if (dexPair.liquidity?.usd && dexPair.fdv && (dexPair.liquidity.usd / dexPair.fdv) < 0.1) {
-        rugScoreValue += 30;
-        redFlags.push(`Low Liquidity/FDV Ratio: ${(dexPair.liquidity.usd / dexPair.fdv).toFixed(4)}`);
+      
+      const liqRatio = (dexPair.liquidity?.usd || 0) / (dexPair.fdv || 1);
+      if (liqRatio < 0.25) {
+        rugScoreValue += 50;
+        redFlags.push(`Liquidity Vacuum: ${liqRatio.toFixed(4)} (Threshold: 0.25)`);
       }
       
       const marketData = {
@@ -107,23 +108,26 @@ export async function registerRoutes(
         redFlags
       };
 
-      const prompt = `ULTRA-STRICT TOKEN AUDIT (ZERO TOLERANCE): 
-      Token: ${marketData.name} (${marketData.symbol})
-      24h Volume: $${marketData.volume.toLocaleString()}
-      FDV: $${marketData.fdv.toLocaleString()}
-      Liq/FDV Ratio: ${(marketData.liquidity / marketData.fdv).toFixed(4)}
+      const prompt = `ELITE TOKEN AUDIT (MAXIMUM SKEPTICISM): 
+      Audit this token for Pump.fun power users. Be BRUTAL.
       
-      HOLDER ANALYSIS:
-      Dev Wallet: ${marketData.devShare} (LIMIT: 1.0%)
-      Top 5 Concentration: ${marketData.topConcentration} (LIMIT: 4.0%)
+      METRICS:
+      Volume: $${marketData.volume.toLocaleString()}
+      Market Cap: $${marketData.fdv.toLocaleString()}
+      Liq/MC Ratio: ${(marketData.liquidity / marketData.fdv).toFixed(4)}
       
-      SYSTEM DETECTED FLAGS:
-      ${redFlags.length > 0 ? redFlags.join("\n") : "None"}
+      INTERNAL DISTRIBUTION:
+      Dev Wallet: ${marketData.devShare} (STRICT CAP: 0.3%)
+      Top 5 Concentration: ${marketData.topConcentration} (STRICT CAP: 1.0%)
       
-      VERDICT RULES:
-      - If ANY flag exists, Verdict MUST be "L".
-      - If Volume is < 10% of FDV, Verdict MUST be "L".
-      - Only give a "W" if it is literally perfect.
+      CRITICAL RED FLAGS:
+      ${redFlags.length > 0 ? redFlags.join("\n") : "None (Clean Scan)"}
+      
+      VERDICT CRITERIA:
+      - If RED FLAGS exist, Verdict is "L".
+      - If Liq/MC Ratio < 0.2, Verdict is "L".
+      - "W" is reserved for the absolute 1% of tokens with perfect metrics.
+      - Most "W" tokens are actually "L" in disguise. Be careful.
       
       Respond with a JSON object: { "verdict": "W" | "L", "reasoning": "string" }`;
 

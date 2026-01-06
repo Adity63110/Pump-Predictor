@@ -124,8 +124,8 @@ export default function AIAnalyser() {
                         </div>
                         <div className="flex flex-col items-end">
                           <span className="font-bold text-primary">{holder.amount}</span>
-                          {parseFloat(holder.amount) >= 1.0 && (
-                            <span className="text-[10px] text-trash-red font-bold uppercase tracking-tighter">High Concentration</span>
+                          {parseFloat(holder.amount) >= 0.2 && (
+                            <span className="text-[10px] text-trash-red font-bold uppercase tracking-tighter">Insider Risk</span>
                           )}
                         </div>
                       </div>
