@@ -132,11 +132,11 @@ export async function registerRoutes(
       
       CRITICAL RED FLAGS:
       ${redFlags.filter(f => f.includes("Insider") || f.includes("Supply")).join("\n") || "None (Insider Scan Clean)"}
-      ${marketData.fdv > 5000000 ? "- MAJOR RISK: Market Cap is exceptionally high ($5M+). High entry risk - potential top signal." : ""}
+      ${marketData.fdv > 2000000 ? "- MAJOR RISK: Market Cap is exceptionally high ($2M+). High entry risk - potential top signal." : ""}
       
       VERDICT CRITERIA:
       - If Insider Cluster or Supply Clumping is detected, Risk Level is "High".
-      - If Market Cap > $5,000,000, add a major risk warning: "Price too high to enter now".
+      - If Market Cap > $2,000,000, add a major risk warning: "Price too high to enter now".
       - Confidence level is "Strong" if clear patterns are detected, otherwise "Weak" or "Moderate".
       - Your reasoning must justify the Risk Level using holder distribution and entry timing (MC) data.
       - Use terms like "Momentum Potential", "Survival Likelihood", or "Market Health" instead of profitability.
