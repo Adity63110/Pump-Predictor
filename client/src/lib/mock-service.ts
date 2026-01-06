@@ -158,7 +158,25 @@ export const mockService = {
   
   getTrending: async (): Promise<Token[]> => {
     MOCK_TOKENS = getPersistedTokens();
-    return MOCK_TOKENS;
+    // Update trending tokens with real data if possible
+    const updatedTokens = await Promise.all(MOCK_TOKENS.map(async (token) => {
+      try {
+        const response = await fetch(`https://api.dexscreener.com/latest/dex/tokens/${token.ca}`);
+        const data = await response.json();
+        if (data.pairs && data.pairs.length > 0) {
+          const pair = data.pairs[0];
+          return {
+            ...token,
+            marketCap: pair.fdv || pair.marketCap || token.marketCap,
+            chartData: token.chartData.map(d => ({ ...d, price: parseFloat(pair.priceUsd || "0") * (0.95 + Math.random() * 0.1) }))
+          };
+        }
+      } catch (e) {
+        console.error("Failed to update trending token", e);
+      }
+      return token;
+    }));
+    return updatedTokens;
   },
 
   getMessages: async (): Promise<ChatMessage[]> => {
