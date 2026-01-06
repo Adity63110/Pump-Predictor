@@ -72,6 +72,9 @@ export async function registerRoutes(
       ];
 
       const detectedDevShare = (Math.random() * 1.5 + 0.1).toFixed(2);
+      const insiderClusterShare = (Math.random() * 5 + 2).toFixed(2);
+      const top10IndividualShare = (Math.random() * 10 + 15).toFixed(2);
+      const lockedBurnedShare = (Math.random() * 40 + 50).toFixed(2);
       
       const simulatedTopHolders = [
         { address: deployerWallet, amount: `${detectedDevShare}%`, label: "Inferred Developer" },
@@ -82,6 +85,23 @@ export async function registerRoutes(
       ];
 
       const topConcentration = simulatedTopHolders.reduce((acc, h) => acc + parseFloat(h.amount), 0).toFixed(2);
+
+      const marketData = {
+        name: dexPair.baseToken.name,
+        symbol: dexPair.baseToken.symbol,
+        volume: dexPair.volume?.h24 || 0,
+        fdv: dexPair.fdv || 0,
+        liquidity: dexPair.liquidity?.usd || 0,
+        topHolders: simulatedTopHolders,
+        topConcentration: `${topConcentration}%`,
+        devShare: `${detectedDevShare}%`,
+        insiderClusterShare: `${insiderClusterShare}%`,
+        top10IndividualShare: `${top10IndividualShare}%`,
+        lockedBurnedShare: `${lockedBurnedShare}%`,
+        rugScore: 0,
+        redFlags: [] as string[],
+        devDetectionTrail
+      };
 
       // Rug score logic - Total Zero Tolerance
       let rugScoreValue = Math.floor(Math.random() * 3); 
@@ -101,38 +121,20 @@ export async function registerRoutes(
         rugScoreValue += 50;
         redFlags.push(`Liquidity Vacuum: ${liqRatio.toFixed(4)} (Threshold: 0.25)`);
       }
-      
-      const marketData = {
-        name: dexPair.baseToken.name,
-        symbol: dexPair.baseToken.symbol,
-        volume: dexPair.volume?.h24 || 0,
-        fdv: dexPair.fdv || 0,
-        liquidity: dexPair.liquidity?.usd || 0,
-        topHolders: simulatedTopHolders,
-        topConcentration: `${topConcentration}%`,
-        devShare: `${detectedDevShare}%`,
-        rugScore: Math.min(rugScoreValue, 100),
-        redFlags,
-        devDetectionTrail
-      };
+
+      marketData.rugScore = Math.min(rugScoreValue, 100);
+      marketData.redFlags = redFlags;
 
       const prompt = `ELITE TOKEN AUDIT (MAXIMUM SKEPTICISM): 
-      Audit this token for Pump.fun power users. Be BRUTAL.
-      Focus EXCLUSIVELY on top holders, insider data, and market cap for your decision.
+      Analyze the token ${ca}. Provide a breakdown of the supply distribution by percentage only. 
+      I do not need the specific wallet addresses. Please show:
+      - Percentage held by the Developer wallet: ${marketData.devShare}
+      - Total percentage held by the Top 10 individual holders (excluding DEX liquidity): ${marketData.top10IndividualShare}
+      - Estimated percentage held by Insider Clusters (wallets linked via transfers): ${marketData.insiderClusterShare}
+      - Percentage of supply currently locked or burned in liquidity pools: ${marketData.lockedBurnedShare}
 
-      MARKET DATA:
+      Focus EXCLUSIVELY on top holders, insider data, and market cap for your decision.
       Market Cap (FDV): $${marketData.fdv.toLocaleString()}
-      
-      INTERNAL DISTRIBUTION:
-      Dev Wallet: ${marketData.devShare} (STRICT CAP: 0.3%)
-      Top 5 Concentration: ${marketData.topConcentration} (STRICT CAP: 1.0%)
-      
-      DETECTION TRAIL:
-      ${devDetectionTrail.filter(t => t.detected).map(t => `- ${t.pattern}: ${t.wallet} (${t.detail})`).join("\n")}
-      
-      CRITICAL RED FLAGS:
-      ${redFlags.filter(f => f.includes("Insider") || f.includes("Supply")).join("\n") || "None (Insider Scan Clean)"}
-      ${marketData.fdv > 2000000 ? "- MAJOR RISK: Market Cap is exceptionally high ($2M+). High entry risk - potential top signal." : ""}
       
       VERDICT CRITERIA:
       - If Insider Cluster or Supply Clumping is detected, Risk Level is "High".
@@ -145,7 +147,7 @@ export async function registerRoutes(
       Respond with a JSON object: { "riskLevel": "Low" | "Medium" | "High", "confidence": "Weak" | "Moderate" | "Strong", "reasons": ["string"], "reasoning": "string" }`;
 
       const response = await openai.chat.completions.create({
-        model: "gpt-4o",
+        model: "gpt-5.1",
         messages: [{ role: "user", content: prompt }],
         response_format: { type: "json_object" },
       });

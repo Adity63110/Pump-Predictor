@@ -76,8 +76,8 @@ export default function AIAnalyser() {
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
           <div className="flex justify-between items-center bg-card p-6 rounded-xl border border-border shadow-sm">
             <div className="flex items-center gap-4">
-              <div className={`p-4 rounded-full ${analysis.verdict === 'W' ? 'bg-w-green/20' : 'bg-trash-red/20'}`}>
-                {analysis.verdict === 'W' ? (
+              <div className={`p-4 rounded-full ${analysis.riskLevel === 'Low' ? 'bg-w-green/20' : analysis.riskLevel === 'Medium' ? 'bg-yellow-500/20' : 'bg-trash-red/20'}`}>
+                {analysis.riskLevel === 'Low' ? (
                   <ShieldCheck className="h-10 w-10 text-w-green" />
                 ) : (
                   <ShieldAlert className="h-10 w-10 text-trash-red" />
@@ -89,15 +89,44 @@ export default function AIAnalyser() {
               </div>
             </div>
             <div className="text-center">
-              <div className={`text-4xl font-black mb-1 ${analysis.verdict === 'W' ? 'text-w-green' : 'text-trash-red'}`}>
-                {analysis.verdict === 'W' ? 'W' : 'L'}
+              <div className={`text-4xl font-black mb-1 ${analysis.riskLevel === 'Low' ? 'text-w-green' : analysis.riskLevel === 'Medium' ? 'text-yellow-500' : 'text-trash-red'}`}>
+                {analysis.riskLevel}
               </div>
-              <p className="text-xs uppercase tracking-widest font-bold text-muted-foreground">AI Verdict</p>
+              <p className="text-xs uppercase tracking-widest font-bold text-muted-foreground">AI Risk Level</p>
             </div>
           </div>
 
           <div className="grid gap-6 md:grid-cols-2">
             <div className="space-y-6">
+              <Card className="border-primary/20 bg-primary/5">
+                <CardHeader>
+                  <CardTitle className="text-sm font-bold flex items-center gap-2">
+                    <Coins className="h-4 w-4" />
+                    Supply Distribution
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="p-3 rounded bg-background border border-border/50">
+                      <p className="text-[10px] text-muted-foreground uppercase font-bold">Dev Wallet</p>
+                      <p className="text-lg font-bold text-primary">{analysis.devShare}</p>
+                    </div>
+                    <div className="p-3 rounded bg-background border border-border/50">
+                      <p className="text-[10px] text-muted-foreground uppercase font-bold">Insider Clusters</p>
+                      <p className="text-lg font-bold text-trash-red">{analysis.insiderClusterShare}</p>
+                    </div>
+                    <div className="p-3 rounded bg-background border border-border/50">
+                      <p className="text-[10px] text-muted-foreground uppercase font-bold">Top 10 Holders</p>
+                      <p className="text-lg font-bold text-purple-500">{analysis.top10IndividualShare}</p>
+                    </div>
+                    <div className="p-3 rounded bg-background border border-border/50">
+                      <p className="text-[10px] text-muted-foreground uppercase font-bold">Locked/Burned</p>
+                      <p className="text-lg font-bold text-w-green">{analysis.lockedBurnedShare}</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
               {analysis.devDetectionTrail && (
                 <Card className="border-primary/20 bg-primary/5">
                   <CardHeader>
@@ -214,11 +243,13 @@ export default function AIAnalyser() {
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle>AI Reasoning & Verdict</CardTitle>
               <div className={`px-4 py-1 rounded-full text-sm font-bold border ${
-                analysis.verdict === 'W' 
+                analysis.riskLevel === 'Low' 
                   ? 'bg-w-green/10 text-w-green border-w-green/20' 
+                  : analysis.riskLevel === 'Medium'
+                  ? 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20'
                   : 'bg-trash-red/10 text-trash-red border-trash-red/20'
               }`}>
-                {analysis.verdict === 'W' ? 'BULLISH SIGNALS' : 'BEARISH SIGNALS'}
+                {analysis.riskLevel === 'Low' ? 'BULLISH SIGNALS' : analysis.riskLevel === 'Medium' ? 'NEUTRAL SIGNALS' : 'BEARISH SIGNALS'}
               </div>
             </CardHeader>
             <CardContent>

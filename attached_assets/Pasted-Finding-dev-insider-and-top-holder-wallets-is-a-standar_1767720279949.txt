@@ -1,0 +1,44 @@
+Finding dev, insider, and top holder wallets is a standard practice for "rug-checking" and assessing the health of a Solana memecoin. Here is how you can identify these wallets and a specific prompt to get the data you need.
+
+1. How to Identify the Wallets
+Dev (Developer) Wallet:
+
+How to find it: Go to Solscan or Solana.fm and search for the token’s mint address. Look at the "Transactions" tab and scroll to the very beginning (the first few transactions). The wallet that created the token and added initial liquidity is the Dev wallet.
+
+Tool Tip: Use RugCheck.xyz; it often flags the "Mutable" or "Owner" status of the contract, which points directly to the dev.
+
+Top Holders:
+
+How to find it: On Solscan or Dexscreener, click on the "Holders" tab. This lists every wallet holding the token, sorted by the amount they own.
+
+Red Flag: If the top 10 holders (excluding liquidity pools like Raydium) own more than 15-20% of the supply, it’s considered high risk.
+
+Insider Wallets (Clusters):
+
+How to find it: These are harder to see on a list because they are often split into 20+ different wallets to look "natural."
+
+The Tool: Bubblemaps is the best tool for this. It visually connects wallets that have transferred funds between each other. If you see a large "cluster" of bubbles all connected to one source, those are likely insiders or the developer's secondary wallets.
+
+2. Analysis Prompt
+If you are using an AI tool with on-chain access or a specialized Telegram bot (like Trojan or SolSniffer), you can use this prompt to get a clean breakdown:
+
+Prompt: "Analyze the token [Insert Mint Address]. Provide a breakdown of the supply distribution by percentage only. I do not need the specific wallet addresses. Please show:
+
+Percentage held by the Developer wallet.
+
+Total percentage held by the Top 10 individual holders (excluding DEX liquidity).
+
+Estimated percentage held by Insider Clusters (wallets linked via transfers).
+
+Percentage of supply currently locked or burned in liquidity pools."
+
+3. Recommended Tools for Quick Checks
+If you want the percentage data instantly without manual searching:
+
+RugCheck.xyz: Paste the mint address. It gives a "Holder Analysis" section that shows the percentage held by the top 10 wallets and warns you if the dev still holds a large amount.
+
+SolSniffer: Provides a "Health Score" and breaks down the "Top 10 Holders" percentage and "Creator Balance" percentage automatically.
+
+Photon / BullX: These trading terminals have a built-in "Quick Audit" button that shows holder percentages right next to the buy/sell buttons.
+
+Would you like me to explain how to interpret "Liquidity Pool" percentages versus "Individual" percentages so you don't mistake a DEX for a whale?
