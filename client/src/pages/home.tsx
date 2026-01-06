@@ -62,7 +62,7 @@ export default function Home() {
               />
             </div>
             <Button size="lg" type="submit" className="h-12 px-8 font-bold text-base bg-primary text-primary-foreground hover:bg-white/90 transition-all">
-              Verdict Room <ArrowRight className="ml-2 w-4 h-4" />
+              Create <ArrowRight className="ml-2 w-4 h-4" />
             </Button>
           </form>
         </div>
