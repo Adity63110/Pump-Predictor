@@ -6,5 +6,6 @@ if (!process.env.DATABASE_URL) {
   throw new Error("DATABASE_URL must be set. Please add it to your environment variables.");
 }
 
-export const queryClient = postgres(process.env.DATABASE_URL);
+const connectionString = process.env.DATABASE_URL;
+export const queryClient = postgres(connectionString);
 export const db = drizzle(queryClient, { schema });

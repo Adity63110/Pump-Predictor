@@ -51,6 +51,8 @@ export const insertMarketSchema = createInsertSchema(markets);
 export const insertVoteSchema = createInsertSchema(votes);
 export const insertMessageSchema = createInsertSchema(messages);
 
+export * from "./models/chat";
+
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type Market = typeof markets.$inferSelect;
