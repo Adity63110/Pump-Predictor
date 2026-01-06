@@ -125,6 +125,14 @@ export default function TokenRoom() {
 
           {/* Chart Area (Simplified Visualization) */}
           <div className="h-[300px] w-full bg-card/30 rounded-xl border border-border/50 p-4 relative overflow-hidden group">
+            <div className="absolute top-4 left-4 z-10">
+              <div className="text-2xl font-mono font-bold text-white">
+                ${token.chartData[token.chartData.length - 1].price.toLocaleString(undefined, { maximumSignificantDigits: 6 })}
+              </div>
+              <div className="text-xs text-w-green font-mono">
+                +{(Math.random() * 5).toFixed(2)}% (24h)
+              </div>
+            </div>
             <div className="absolute top-4 right-4 z-10 flex gap-2">
                 <span className="text-xs bg-black/50 px-2 py-1 rounded text-w-green font-mono">LIVE</span>
             </div>

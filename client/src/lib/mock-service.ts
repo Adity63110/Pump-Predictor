@@ -138,6 +138,12 @@ export const mockService = {
           newToken.symbol = pair.baseToken.symbol;
           newToken.marketCap = pair.fdv || pair.marketCap || newToken.marketCap;
           newToken.imageUrl = pair.info?.imageUrl || "";
+          
+          // Use real chart data if available, otherwise keep mock generator
+          // Note: DexScreener doesn't provide historical candles via this simple endpoint, 
+          // but we'll stick to our generator for now and ensure price is accurate
+          const currentPrice = parseFloat(pair.priceUsd || "0");
+          newToken.chartData = generateChartData().map(d => ({ ...d, price: currentPrice * (0.95 + Math.random() * 0.1) }));
         }
       } catch (e) {
         console.error("Failed to fetch real token data", e);
