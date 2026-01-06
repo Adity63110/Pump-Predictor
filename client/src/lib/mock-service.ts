@@ -103,80 +103,92 @@ const MOCK_MESSAGES: ChatMessage[] = [
   { id: "4", user: "DegenDave", text: "LFG!!!", type: "default", timestamp: "10:06" },
 ];
 
-// Service Simulation
+// Service Simulation - Now calling real API
 export const mockService = {
   getToken: async (caOrId: string): Promise<Token | undefined> => {
-    await new Promise((resolve) => setTimeout(resolve, 400));
-    MOCK_TOKENS = getPersistedTokens();
-    const existing = MOCK_TOKENS.find((t) => t.id === caOrId || t.ca === caOrId || t.symbol === caOrId);
-    if (existing) return existing;
-
-    // Simulate "creating" a room for a new CA
-    if (caOrId.length > 30) { // Simple CA check
-      const newToken: Token = {
-        id: caOrId,
-        name: "Unknown Token",
-        symbol: "???",
-        ca: caOrId,
-        imageUrl: "",
-        marketCap: Math.floor(Math.random() * 500000),
-        launchTime: new Date().toISOString(),
-        devWalletPct: parseFloat((Math.random() * 10).toFixed(2)),
-        isFrozen: false,
-        votes: { w: 0, trash: 0 },
-        rugScale: Math.floor(Math.random() * 100),
-        chartData: generateChartData(),
-      };
+    try {
+      const response = await fetch(`/api/markets/${caOrId}`);
+      if (response.ok) {
+        const market = await response.json();
+        return {
+          id: market.id,
+          name: market.name,
+          symbol: market.symbol,
+          ca: market.ca,
+          imageUrl: market.imageUrl || "",
+          marketCap: market.marketCap,
+          launchTime: market.launchTime,
+          devWalletPct: parseFloat(market.devWalletPct),
+          isFrozen: market.isFrozen,
+          votes: { w: market.wVotes, trash: market.trashVotes },
+          rugScale: market.rugScale,
+          chartData: (market.chartData as any[]) || generateChartData()
+        };
+      }
       
-      // Try to fetch real data from DexScreener
-      try {
+      // If not found, try DexScreener and create
+      if (caOrId.length > 30) {
         const response = await fetch(`https://api.dexscreener.com/latest/dex/tokens/${caOrId}`);
         const data = await response.json();
         if (data.pairs && data.pairs.length > 0) {
           const pair = data.pairs[0];
-          newToken.name = pair.baseToken.name;
-          newToken.symbol = pair.baseToken.symbol;
-          newToken.marketCap = pair.fdv || pair.marketCap || newToken.marketCap;
-          newToken.imageUrl = pair.info?.imageUrl || "";
+          const newMarket = {
+            id: caOrId,
+            name: pair.baseToken.name,
+            symbol: pair.baseToken.symbol,
+            ca: caOrId,
+            imageUrl: pair.info?.imageUrl || "",
+            marketCap: Math.floor(pair.fdv || pair.marketCap || 0),
+            launchTime: new Date().toISOString(),
+            devWalletPct: "5.0",
+            isFrozen: false,
+            rugScale: Math.floor(Math.random() * 100),
+            wVotes: 0,
+            trashVotes: 0,
+            chartData: generateChartData()
+          };
           
-          // Use real chart data if available, otherwise keep mock generator
-          // Note: DexScreener doesn't provide historical candles via this simple endpoint, 
-          // but we'll stick to our generator for now and ensure price is accurate
-          const currentPrice = parseFloat(pair.priceUsd || "0");
-          newToken.chartData = generateChartData().map(d => ({ ...d, price: currentPrice * (0.95 + Math.random() * 0.1) }));
+          await fetch('/api/markets', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(newMarket)
+          });
+          
+          return {
+            ...newMarket,
+            devWalletPct: 5.0,
+            votes: { w: 0, trash: 0 }
+          } as Token;
         }
-      } catch (e) {
-        console.error("Failed to fetch real token data", e);
       }
-
-      MOCK_TOKENS.push(newToken);
-      localStorage.setItem('token_votes', JSON.stringify(MOCK_TOKENS));
-      return newToken;
+    } catch (e) {
+      console.error("API error", e);
     }
     return undefined;
   },
   
   getTrending: async (): Promise<Token[]> => {
-    MOCK_TOKENS = getPersistedTokens();
-    // Update trending tokens with real data if possible
-    const updatedTokens = await Promise.all(MOCK_TOKENS.map(async (token) => {
-      try {
-        const response = await fetch(`https://api.dexscreener.com/latest/dex/tokens/${token.ca}`);
-        const data = await response.json();
-        if (data.pairs && data.pairs.length > 0) {
-          const pair = data.pairs[0];
-          return {
-            ...token,
-            marketCap: pair.fdv || pair.marketCap || token.marketCap,
-            chartData: token.chartData.map(d => ({ ...d, price: parseFloat(pair.priceUsd || "0") * (0.95 + Math.random() * 0.1) }))
-          };
-        }
-      } catch (e) {
-        console.error("Failed to update trending token", e);
-      }
-      return token;
-    }));
-    return updatedTokens;
+    try {
+      const response = await fetch('/api/markets/trending');
+      const markets = await response.json();
+      return markets.map((market: any) => ({
+        id: market.id,
+        name: market.name,
+        symbol: market.symbol,
+        ca: market.ca,
+        imageUrl: market.imageUrl || "",
+        marketCap: market.marketCap,
+        launchTime: market.launchTime,
+        devWalletPct: parseFloat(market.devWalletPct),
+        isFrozen: market.isFrozen,
+        votes: { w: market.wVotes, trash: market.trashVotes },
+        rugScale: market.rugScale,
+        chartData: market.chartData || []
+      }));
+    } catch (e) {
+      console.error("API error", e);
+      return [];
+    }
   },
 
   getMessages: async (): Promise<ChatMessage[]> => {
@@ -184,12 +196,16 @@ export const mockService = {
   },
   
   vote: async (tokenId: string, type: 'w' | 'trash') => {
-    MOCK_TOKENS = getPersistedTokens();
-    const index = MOCK_TOKENS.findIndex(t => t.id === tokenId);
-    if (index !== -1) {
-      MOCK_TOKENS[index].votes[type]++;
-      localStorage.setItem('token_votes', JSON.stringify(MOCK_TOKENS));
+    try {
+      await fetch('/api/votes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ marketId: tokenId, type })
+      });
+      return true;
+    } catch (e) {
+      console.error("API error", e);
+      return false;
     }
-    return true;
   }
 };
