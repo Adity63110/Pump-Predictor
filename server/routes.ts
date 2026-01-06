@@ -118,8 +118,11 @@ export async function registerRoutes(
 
       const prompt = `ELITE TOKEN AUDIT (MAXIMUM SKEPTICISM): 
       Audit this token for Pump.fun power users. Be BRUTAL.
-      Focus EXCLUSIVELY on top holders and insider data for your decision.
+      Focus EXCLUSIVELY on top holders, insider data, and market cap for your decision.
 
+      MARKET DATA:
+      Market Cap (FDV): $${marketData.fdv.toLocaleString()}
+      
       INTERNAL DISTRIBUTION:
       Dev Wallet: ${marketData.devShare} (STRICT CAP: 0.3%)
       Top 5 Concentration: ${marketData.topConcentration} (STRICT CAP: 1.0%)
@@ -129,11 +132,13 @@ export async function registerRoutes(
       
       CRITICAL RED FLAGS:
       ${redFlags.filter(f => f.includes("Insider") || f.includes("Supply")).join("\n") || "None (Insider Scan Clean)"}
+      ${marketData.fdv > 5000000 ? "- MAJOR RISK: Market Cap is exceptionally high ($5M+). High entry risk - potential top signal." : ""}
       
       VERDICT CRITERIA:
       - If Insider Cluster or Supply Clumping is detected, Risk Level is "High".
+      - If Market Cap > $5,000,000, add a major risk warning: "Price too high to enter now".
       - Confidence level is "Strong" if clear patterns are detected, otherwise "Weak" or "Moderate".
-      - Your reasoning must justify the Risk Level using holder distribution data.
+      - Your reasoning must justify the Risk Level using holder distribution and entry timing (MC) data.
       - Use terms like "Momentum Potential", "Survival Likelihood", or "Market Health" instead of profitability.
       - AVOID terms like "Safe", "Profitable", or "Guaranteed".
 
