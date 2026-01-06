@@ -96,71 +96,73 @@ export default function AIAnalyser() {
             </div>
           </div>
 
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-6 md:grid-cols-2">
             <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium flex items-center gap-2">
-                  <Activity className="h-4 w-4 text-blue-500" />
-                  Volume (24h)
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Users className="h-5 w-5 text-purple-500" />
+                  Top Holders Analysis
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">${(analysis.volume / 1000).toFixed(1)}k</div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium flex items-center gap-2">
-                  <Users className="h-4 w-4 text-purple-500" />
-                  Dev Share
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{analysis.devShare}</div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium flex items-center gap-2">
-                  <Coins className="h-4 w-4 text-yellow-500" />
-                  Market Cap
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">${(analysis.fdv / 1000).toFixed(1)}k</div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium flex items-center gap-2">
-                  <ShieldAlert className="h-4 w-4 text-orange-500" />
-                  Rug Score
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className={`text-2xl font-bold ${analysis.rugScore > 70 ? 'text-trash-red' : analysis.rugScore < 30 ? 'text-w-green' : 'text-yellow-500'}`}>
-                  {analysis.rugScore}/100
+                <div className="space-y-4">
+                  {analysis.topHolders.map((holder: any, i: number) => (
+                    <div key={i} className="flex justify-between items-center p-3 rounded-lg bg-muted/30 border border-border/50">
+                      <div className="flex items-center gap-3">
+                        <div className="text-xs font-mono text-muted-foreground bg-muted px-2 py-1 rounded">
+                          {holder.address}
+                        </div>
+                        <span className="text-sm font-semibold">{holder.label}</span>
+                      </div>
+                      <span className="font-bold text-primary">{holder.amount}</span>
+                    </div>
+                  ))}
                 </div>
               </CardContent>
             </Card>
-          </div>
 
-          <Card className="bg-primary/5 border-primary/20">
-            <CardHeader>
-              <CardTitle>AI Reasoning</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-lg leading-relaxed">{analysis.reasoning}</p>
-              <div className="mt-8 flex justify-center">
-                <Button size="lg" onClick={() => setLocation(`/room/${analysis.roomId}`)} className="gap-2">
-                  Visit Voting Room <ArrowRight className="h-4 w-4" />
-                </Button>
+            <div className="grid gap-6">
+              <div className="grid grid-cols-2 gap-4">
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm font-medium flex items-center gap-2">
+                      <Activity className="h-4 w-4 text-blue-500" />
+                      Volume (24h)
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold">${(analysis.volume / 1000).toFixed(1)}k</div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm font-medium flex items-center gap-2">
+                      <Coins className="h-4 w-4 text-yellow-500" />
+                      Market Cap
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold">${(analysis.fdv / 1000).toFixed(1)}k</div>
+                  </CardContent>
+                </Card>
               </div>
-            </CardContent>
-          </Card>
+
+              <Card className="bg-primary/5 border-primary/20 flex-1">
+                <CardHeader>
+                  <CardTitle>AI Reasoning</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-lg leading-relaxed">{analysis.reasoning}</p>
+                  <div className="mt-8 flex justify-center">
+                    <Button size="lg" onClick={() => setLocation(`/room/${analysis.roomId}`)} className="gap-2">
+                      Visit Voting Room <ArrowRight className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
         </div>
       )}
 
