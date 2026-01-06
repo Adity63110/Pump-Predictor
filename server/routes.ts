@@ -118,12 +118,8 @@ export async function registerRoutes(
 
       const prompt = `ELITE TOKEN AUDIT (MAXIMUM SKEPTICISM): 
       Audit this token for Pump.fun power users. Be BRUTAL.
-      
-      METRICS:
-      Volume: $${marketData.volume.toLocaleString()}
-      Market Cap: $${marketData.fdv.toLocaleString()}
-      Liq/MC Ratio: ${(marketData.liquidity / marketData.fdv).toFixed(4)}
-      
+      Focus EXCLUSIVELY on top holders and insider data for your decision.
+
       INTERNAL DISTRIBUTION:
       Dev Wallet: ${marketData.devShare} (STRICT CAP: 0.3%)
       Top 5 Concentration: ${marketData.topConcentration} (STRICT CAP: 1.0%)
@@ -132,13 +128,12 @@ export async function registerRoutes(
       ${devDetectionTrail.filter(t => t.detected).map(t => `- ${t.pattern}: ${t.wallet} (${t.detail})`).join("\n")}
       
       CRITICAL RED FLAGS:
-      ${redFlags.length > 0 ? redFlags.join("\n") : "None (Clean Scan)"}
+      ${redFlags.filter(f => f.includes("Insider") || f.includes("Supply")).join("\n") || "None (Insider Scan Clean)"}
       
       VERDICT CRITERIA:
-      - If RED FLAGS exist, Verdict is "L".
-      - If Liq/MC Ratio < 0.2, Verdict is "L".
-      - "W" is reserved for the absolute 1% of tokens with perfect metrics.
-      - Most "W" tokens are actually "L" in disguise. Be careful.
+      - If Insider Cluster or Supply Clumping is detected, Verdict is "L".
+      - Your reasoning must justify why the holder distribution alone makes this a "W" or "L".
+      - Ignore general market metrics like volume or market cap for the final verdict decision.
       
       Respond with a JSON object: { "verdict": "W" | "L", "reasoning": "string" }`;
 
