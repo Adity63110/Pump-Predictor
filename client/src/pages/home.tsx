@@ -81,13 +81,13 @@ export default function Home() {
               <div className="group relative bg-card/50 hover:bg-card border border-border hover:border-border/80 transition-all rounded-xl overflow-hidden cursor-pointer hover:shadow-lg hover:shadow-primary/5 p-5">
                 <div className="flex justify-between items-start mb-4">
                   <div className="flex items-center gap-3">
-                    {token.imageUrl ? (
-                        <img src={token.imageUrl} alt={token.name} className="w-10 h-10 rounded-full" />
-                    ) : (
-                        <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center font-bold text-muted-foreground">
-                            {token.symbol[0]}
-                        </div>
-                    )}
+                    <div className="w-10 h-10 rounded-full bg-secondary overflow-hidden flex items-center justify-center font-bold text-muted-foreground ring-1 ring-border">
+                      {token.imageUrl ? (
+                        <img src={token.imageUrl} alt={token.name} className="w-full h-full object-cover" />
+                      ) : (
+                        token.symbol[0]
+                      )}
+                    </div>
                     <div>
                       <h3 className="font-bold text-lg leading-none group-hover:text-primary transition-colors">{token.name}</h3>
                       <span className="text-xs font-mono text-muted-foreground">${token.symbol}</span>
