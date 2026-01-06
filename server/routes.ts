@@ -51,7 +51,7 @@ export async function registerRoutes(
     if (!ca) return res.status(400).json({ message: "CA is required" });
 
     try {
-      // Simulate/Fetch market data
+      // 1. Data Gathering & Feature Building
       const dexResponse = await fetch(`https://api.dexscreener.com/latest/dex/tokens/${ca}`);
       const dexData = await dexResponse.json();
       const dexPair = dexData.pairs?.[0];
@@ -60,113 +60,123 @@ export async function registerRoutes(
         return res.status(404).json({ message: "Token not found on chain" });
       }
 
-      // pattern-based dev wallet inference logic
-      const deployerWallet = "Depl...7x9";
-      const lpWallet = "LPwa...2v1";
-      const clusterWallet = "Clus...4m8";
+      const market = await storage.getMarketByCA(ca);
+      const messages = market ? await storage.getMessages(market.id) : [];
       
-      const devDetectionTrail = [
-        { pattern: "Token Creation Trail", wallet: deployerWallet, detail: "Paid deploy fees & initialized mint", detected: true },
-        { pattern: "First Liquidity Wallet", wallet: lpWallet, detail: "Seeded initial LP on Raydium/Pump", detected: Math.random() > 0.3 },
-        { pattern: "Supply Movement Analysis", wallet: clusterWallet, detail: "Large % transfer cluster detected early", detected: Math.random() > 0.5 },
-      ];
+      // On-chain Signals (Simulated/Calculated)
+      const tokenAgeMin = Math.floor((Date.now() - new Date(dexPair.pairCreatedAt || Date.now()).getTime()) / 60000);
+      const isMintFrozen = Math.random() > 0.9; // Mock signal
+      const lpBurned = Math.random() > 0.2; // Mock signal
+      const devWalletPct = Math.random() * 15; // Mock signal
+      const earlyBuyerCluster = Math.random(); // Mock signal 0-1
+      
+      // Crowd Signals
+      const wVotes = market?.wVotes || 0;
+      const trashVotes = market?.trashVotes || 0;
+      const totalVotes = wVotes + trashVotes;
+      const wRatio = totalVotes > 0 ? wVotes / totalVotes : 0.5;
+      
+      const chatWarningDensity = messages.length > 0 
+        ? messages.filter(m => m.messageText.toLowerCase().includes("rug") || m.messageText.toLowerCase().includes("scam")).length / messages.length 
+        : 0;
 
-      const detectedDevShare = (Math.random() * 1.5 + 0.1).toFixed(2);
-      
-      const simulatedTopHolders = [
-        { address: deployerWallet, amount: `${detectedDevShare}%`, label: "Inferred Developer" },
-        { address: "8x2p...m3q", amount: (Math.random() * 0.5 + 0.8).toFixed(2) + "%", label: "Early Sniper" },
-        { address: "2n9v...k4s", amount: (Math.random() * 0.4 + 0.6).toFixed(2) + "%", label: "Whale" },
-        { address: "4m1t...p5r", amount: (Math.random() * 0.3 + 0.4).toFixed(2) + "%", label: "Top Holder" },
-        { address: clusterWallet, amount: (Math.random() * 0.2 + 0.2).toFixed(2) + "%", label: "Cluster Member" },
-      ];
+      // Behavioral (Mocked based on patterns)
+      const devPastRugs = Math.random() > 0.8 ? 1 : 0;
 
-      const topConcentration = simulatedTopHolders.reduce((acc, h) => acc + parseFloat(h.amount), 0).toFixed(2);
-
-      // Rug score logic - Total Zero Tolerance
-      let rugScoreValue = Math.floor(Math.random() * 3); 
-      const redFlags = [];
-      
-      if (parseFloat(detectedDevShare) > 0.3) {
-        rugScoreValue += 90;
-        redFlags.push(`Insider Cluster Detected: ${detectedDevShare}% (Limit: 0.3%)`);
-      }
-      if (parseFloat(topConcentration) > 1.0) {
-        rugScoreValue += 10;
-        redFlags.push(`Supply Clumping: ${topConcentration}% (Limit: 1.0%)`);
-      }
-      
-      const liqRatio = (dexPair.liquidity?.usd || 0) / (dexPair.fdv || 1);
-      if (liqRatio < 0.25) {
-        rugScoreValue += 50;
-        redFlags.push(`Liquidity Vacuum: ${liqRatio.toFixed(4)} (Threshold: 0.25)`);
-      }
-      
-      const marketData = {
-        name: dexPair.baseToken.name,
-        symbol: dexPair.baseToken.symbol,
-        volume: dexPair.volume?.h24 || 0,
-        fdv: dexPair.fdv || 0,
-        liquidity: dexPair.liquidity?.usd || 0,
-        topHolders: simulatedTopHolders,
-        topConcentration: `${topConcentration}%`,
-        devShare: `${detectedDevShare}%`,
-        rugScore: Math.min(rugScoreValue, 100),
-        redFlags,
-        devDetectionTrail
+      const features = {
+        token_age_minutes: tokenAgeMin,
+        mint_frozen: isMintFrozen,
+        lp_burned: lpBurned,
+        dev_supply_percent: devWalletPct.toFixed(2),
+        early_buyer_clustering: earlyBuyerCluster.toFixed(2),
+        w_ratio: wRatio.toFixed(2),
+        chat_warning_density: chatWarningDensity.toFixed(2),
+        dev_past_rugs: devPastRugs
       };
 
-      const prompt = `ELITE TOKEN AUDIT (MAXIMUM SKEPTICISM): 
-      Audit this token for Pump.fun power users. Be BRUTAL.
-      Focus EXCLUSIVELY on top holders and insider data for your decision.
+      // 2. Rule-Based Pre-Scoring
+      const redFlags = [];
+      let ruleRiskScore = 0;
 
-      INTERNAL DISTRIBUTION:
-      Dev Wallet: ${marketData.devShare} (STRICT CAP: 0.3%)
-      Top 5 Concentration: ${marketData.topConcentration} (STRICT CAP: 1.0%)
-      
-      DETECTION TRAIL:
-      ${devDetectionTrail.filter(t => t.detected).map(t => `- ${t.pattern}: ${t.wallet} (${t.detail})`).join("\n")}
-      
-      CRITICAL RED FLAGS:
-      ${redFlags.filter(f => f.includes("Insider") || f.includes("Supply")).join("\n") || "None (Insider Scan Clean)"}
-      
-      VERDICT CRITERIA:
-      - If Insider Cluster or Supply Clumping is detected, Verdict is "L".
-      - Your reasoning must justify why the holder distribution alone makes this a "W" or "L".
-      - Ignore general market metrics like volume or market cap for the final verdict decision.
-      
-      Respond with a JSON object: { "verdict": "W" | "L", "reasoning": "string" }`;
+      if (!lpBurned) {
+        ruleRiskScore += 40;
+        redFlags.push("Liquidity not burned/locked");
+      }
+      if (devWalletPct > 10) {
+        ruleRiskScore += 30;
+        redFlags.push(`High Dev Holding: ${devWalletPct.toFixed(2)}%`);
+      }
+      if (devPastRugs > 0) {
+        ruleRiskScore += 50;
+        redFlags.push("Developer associated with previous rugs");
+      }
 
-      const response = await openai.chat.completions.create({
+      // 3. AI Crypto Risk Analyst Layer
+      const prompt = `ACT AS A SENIOR CRYPTO RISK ANALYST.
+      Your task is to provide a surgical audit of a Solana token.
+      
+      INPUT DATA (Structured Signals):
+      ${JSON.stringify(features, null, 2)}
+
+      EVALUATION GUIDELINES:
+      - 1️⃣ On-chain Signals: Focus on supply concentration and LP status.
+      - 2️⃣ Crowd Signals: Analyze market sentiment (W/Trash ratio) and chat warnings.
+      - 3️⃣ Behavioral History: Weigh developer reputation heavily.
+      
+      OUTPUT REQUIREMENTS:
+      - RISK LEVEL: Low / Medium / High
+      - CONFIDENCE: Weak / Moderate / Strong
+      - REASONS: Top 3-4 specific technical reasons for the verdict.
+      - DO NOT use words like "Safe", "Profitable", or "Guaranteed".
+      
+      Respond EXCLUSIVELY with a JSON object:
+      {
+        "risk_level": "string",
+        "confidence": "string",
+        "reasons": ["string", "string", ...],
+        "verdict": "W" | "L"
+      }`;
+
+      const aiResponse = await openai.chat.completions.create({
         model: "gpt-4o",
         messages: [{ role: "user", content: prompt }],
         response_format: { type: "json_object" },
       });
 
-      const analysis = JSON.parse(response.choices[0].message.content || "{}");
+      const analysis = JSON.parse(aiResponse.choices[0].message.content || "{}");
       
-      // Ensure market exists in DB
-      let market = await storage.getMarketByCA(ca);
-      if (!market) {
-        market = await storage.createMarket({
+      // Persistence
+      let updatedMarket = market;
+      if (!updatedMarket) {
+        updatedMarket = await storage.createMarket({
           id: ca,
-          name: marketData.name,
-          symbol: marketData.symbol,
+          name: dexPair.baseToken.name,
+          symbol: dexPair.baseToken.symbol,
           ca: ca,
           imageUrl: dexPair.info?.imageUrl || "",
-          marketCap: Math.floor(marketData.fdv),
-          launchTime: new Date().toISOString(),
-          devWalletPct: marketData.devShare.replace("%", ""),
-          rugScale: marketData.rugScore,
+          marketCap: Math.floor(dexPair.fdv || 0),
+          launchTime: new Date(dexPair.pairCreatedAt || Date.now()).toISOString(),
+          devWalletPct: devWalletPct.toFixed(2),
+          rugScale: Math.min(ruleRiskScore + (analysis.risk_level === "High" ? 30 : 10), 100),
         });
+      } else {
+        // Update rug scale based on new analysis
+        // In a real app we'd have a more robust update mechanism
       }
 
       res.json({
-        ...marketData,
+        ca,
+        name: dexPair.baseToken.name,
+        symbol: dexPair.baseToken.symbol,
+        riskLevel: analysis.risk_level,
+        confidence: analysis.confidence,
+        reasons: analysis.reasons,
         verdict: analysis.verdict,
-        reasoning: analysis.reasoning,
-        roomId: market.id
+        features,
+        redFlags: redFlags.length > 0 ? redFlags : analysis.reasons.filter((r: string) => r.toLowerCase().includes("risk") || r.toLowerCase().includes("detected")),
+        roomId: updatedMarket.id
       });
+
     } catch (error: any) {
       console.error("AI Analysis error:", error);
       res.status(500).json({ message: "AI analysis failed" });
