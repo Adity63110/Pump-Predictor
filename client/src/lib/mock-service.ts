@@ -107,59 +107,81 @@ const MOCK_MESSAGES: ChatMessage[] = [
 export const mockService = {
   getToken: async (caOrId: string): Promise<Token | undefined> => {
     try {
+      // 1. Fetch from our API first
       const response = await fetch(`/api/markets/${caOrId}`);
+      let market = null;
       if (response.ok) {
-        const market = await response.json();
-        return {
+        market = await response.json();
+      }
+      
+      // 2. Always try to get fresh data from DexScreener for the chart
+      const dexResponse = await fetch(`https://api.dexscreener.com/latest/dex/tokens/${caOrId}`);
+      const dexData = await dexResponse.json();
+      
+      let dexPair = dexData.pairs?.[0];
+      
+      // If we have a market in our DB, update it with fresh DexScreener data if found
+      if (market) {
+        const token: Token = {
           id: market.id,
           name: market.name,
           symbol: market.symbol,
           ca: market.ca,
-          imageUrl: market.imageUrl || "",
-          marketCap: market.marketCap,
+          imageUrl: dexPair?.info?.imageUrl || market.imageUrl || "",
+          marketCap: dexPair?.fdv || dexPair?.marketCap || market.marketCap,
           launchTime: market.launchTime,
           devWalletPct: parseFloat(market.devWalletPct),
           isFrozen: market.isFrozen,
           votes: { w: market.wVotes, trash: market.trashVotes },
           rugScale: market.rugScale,
-          chartData: (market.chartData as any[]) || generateChartData()
+          chartData: generateChartData() // We'll still generate mock points but base them on real price
         };
+        
+        if (dexPair?.priceUsd) {
+          const currentPrice = parseFloat(dexPair.priceUsd);
+          token.chartData = token.chartData.map(d => ({ 
+            ...d, 
+            price: currentPrice * (0.98 + Math.random() * 0.04) 
+          }));
+        }
+        return token;
       }
       
-      // If not found, try DexScreener and create
-      if (caOrId.length > 30) {
-        const response = await fetch(`https://api.dexscreener.com/latest/dex/tokens/${caOrId}`);
-        const data = await response.json();
-        if (data.pairs && data.pairs.length > 0) {
-          const pair = data.pairs[0];
-          const newMarket = {
-            id: caOrId,
-            name: pair.baseToken.name,
-            symbol: pair.baseToken.symbol,
-            ca: caOrId,
-            imageUrl: pair.info?.imageUrl || "",
-            marketCap: Math.floor(pair.fdv || pair.marketCap || 0),
-            launchTime: new Date().toISOString(),
-            devWalletPct: "5.0",
-            isFrozen: false,
-            rugScale: Math.floor(Math.random() * 100),
-            wVotes: 0,
-            trashVotes: 0,
-            chartData: generateChartData()
-          };
-          
-          await fetch('/api/markets', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(newMarket)
-          });
-          
-          return {
-            ...newMarket,
-            devWalletPct: 5.0,
-            votes: { w: 0, trash: 0 }
-          } as Token;
-        }
+      // 3. If not in DB but found on DexScreener, create it
+      if (dexPair) {
+        const ca = dexPair.baseToken.address;
+        const newMarket = {
+          id: ca,
+          name: dexPair.baseToken.name,
+          symbol: dexPair.baseToken.symbol,
+          ca: ca,
+          imageUrl: dexPair.info?.imageUrl || "",
+          marketCap: Math.floor(dexPair.fdv || dexPair.marketCap || 0),
+          launchTime: new Date().toISOString(),
+          devWalletPct: "5.0",
+          isFrozen: false,
+          rugScale: Math.floor(Math.random() * 100),
+          wVotes: 0,
+          trashVotes: 0,
+          chartData: []
+        };
+        
+        await fetch('/api/markets', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(newMarket)
+        });
+        
+        const currentPrice = parseFloat(dexPair.priceUsd || "0");
+        return {
+          ...newMarket,
+          devWalletPct: 5.0,
+          votes: { w: 0, trash: 0 },
+          chartData: generateChartData().map(d => ({ 
+            ...d, 
+            price: currentPrice * (0.98 + Math.random() * 0.04) 
+          }))
+        } as Token;
       }
     } catch (e) {
       console.error("API error", e);
@@ -171,19 +193,48 @@ export const mockService = {
     try {
       const response = await fetch('/api/markets/trending');
       const markets = await response.json();
-      return markets.map((market: any) => ({
-        id: market.id,
-        name: market.name,
-        symbol: market.symbol,
-        ca: market.ca,
-        imageUrl: market.imageUrl || "",
-        marketCap: market.marketCap,
-        launchTime: market.launchTime,
-        devWalletPct: parseFloat(market.devWalletPct),
-        isFrozen: market.isFrozen,
-        votes: { w: market.wVotes, trash: market.trashVotes },
-        rugScale: market.rugScale,
-        chartData: market.chartData || []
+      
+      // Enhance trending results with fresh DexScreener data
+      return await Promise.all(markets.map(async (market: any) => {
+        try {
+          const dexRes = await fetch(`https://api.dexscreener.com/latest/dex/tokens/${market.ca}`);
+          const dexData = await dexRes.json();
+          const dexPair = dexData.pairs?.[0];
+          
+          const currentPrice = parseFloat(dexPair?.priceUsd || "0");
+          return {
+            id: market.id,
+            name: market.name,
+            symbol: market.symbol,
+            ca: market.ca,
+            imageUrl: dexPair?.info?.imageUrl || market.imageUrl || "",
+            marketCap: dexPair?.fdv || dexPair?.marketCap || market.marketCap,
+            launchTime: market.launchTime,
+            devWalletPct: parseFloat(market.devWalletPct),
+            isFrozen: market.isFrozen,
+            votes: { w: market.wVotes, trash: market.trashVotes },
+            rugScale: market.rugScale,
+            chartData: generateChartData().map(d => ({ 
+              ...d, 
+              price: currentPrice > 0 ? currentPrice * (0.98 + Math.random() * 0.04) : 0 
+            }))
+          };
+        } catch {
+          return {
+            id: market.id,
+            name: market.name,
+            symbol: market.symbol,
+            ca: market.ca,
+            imageUrl: market.imageUrl || "",
+            marketCap: market.marketCap,
+            launchTime: market.launchTime,
+            devWalletPct: parseFloat(market.devWalletPct),
+            isFrozen: market.isFrozen,
+            votes: { w: market.wVotes, trash: market.trashVotes },
+            rugScale: market.rugScale,
+            chartData: []
+          };
+        }
       }));
     } catch (e) {
       console.error("API error", e);

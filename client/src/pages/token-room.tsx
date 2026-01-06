@@ -127,7 +127,7 @@ export default function TokenRoom() {
           <div className="h-[300px] w-full bg-card/30 rounded-xl border border-border/50 p-4 relative overflow-hidden group">
             <div className="absolute top-4 left-4 z-10">
               <div className="text-2xl font-mono font-bold text-white">
-                ${token.chartData[token.chartData.length - 1].price.toLocaleString(undefined, { maximumSignificantDigits: 6 })}
+                ${token.chartData.length > 0 ? token.chartData[token.chartData.length - 1].price.toLocaleString(undefined, { maximumSignificantDigits: 6 }) : '0.00'}
               </div>
               <div className="text-xs text-w-green font-mono">
                 +{(Math.random() * 5).toFixed(2)}% (24h)
