@@ -120,8 +120,8 @@ export default function AIAnalyser() {
                       <p className="text-lg font-bold text-purple-500">{analysis.top10IndividualShare}</p>
                     </div>
                     <div className="p-3 rounded bg-background border border-border/50">
-                      <p className="text-[10px] text-muted-foreground uppercase font-bold">Locked/Burned</p>
-                      <p className="text-lg font-bold text-w-green">{analysis.lockedBurnedShare}</p>
+                      <p className="text-[10px] text-muted-foreground uppercase font-bold">Market Cap</p>
+                      <p className="text-lg font-bold text-w-green">${(analysis.fdv / 1000).toFixed(1)}k</p>
                     </div>
                   </div>
                 </CardContent>
