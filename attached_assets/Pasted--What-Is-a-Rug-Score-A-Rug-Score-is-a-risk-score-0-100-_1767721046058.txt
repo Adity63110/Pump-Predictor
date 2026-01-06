@@ -1,0 +1,213 @@
+🧨 What Is a Rug Score?
+
+A Rug Score is a risk score (0–100) that estimates the probability a token can rug, dump, or be malicious.
+
+0 = very safe
+
+100 = extremely risky
+
+It is not a prediction, it’s a risk aggregation based on on-chain facts.
+
+🔍 Signals Used to Calculate Rug Score
+
+Your AI should combine multiple weighted signals, not just one red flag.
+
+1️⃣ Liquidity Risk (Very High Weight)
+
+Check:
+
+Is liquidity locked or burned?
+
+Lock duration (minutes vs months)
+
+% of total supply in LP
+
+Scoring logic:
+
+Unlocked LP → +30
+
+Locked < 7 days → +20
+
+LP < 10% of supply → +15
+
+2️⃣ Dev-Controlled Supply Risk
+
+Use what we already discussed.
+
+Check:
+
+% of supply controlled by dev-linked wallets
+
+Scoring:
+
+30% → +25
+
+15–30% → +15
+
+<10% → +5
+
+3️⃣ Holder Concentration Risk
+
+Check:
+
+Top holders % (excluding LP)
+
+Scoring:
+
+Top 5 > 50% → +20
+
+Top 3 > 35% → +15
+
+Top 1 > 20% → +10
+
+4️⃣ Insider Activity Risk
+
+Behavior-based.
+
+Check:
+
+Early buys
+
+Repeated wallet patterns
+
+Early exits
+
+Scoring:
+
+Insider-linked supply > 20% → +20
+
+Insider-linked supply 10–20% → +10
+
+5️⃣ Contract Authority Risk
+
+Check:
+
+Mint authority still enabled
+
+Freeze authority enabled
+
+Can supply be changed?
+
+Scoring:
+
+Mint authority active → +25
+
+Freeze authority active → +15
+
+6️⃣ Trading Behavior Risk
+
+Check:
+
+Sudden volume spikes
+
+Sharp sell-offs
+
+Wash trading patterns
+
+Scoring:
+
+Extreme early volatility → +10
+
+Abnormal buy/sell symmetry → +10
+
+7️⃣ Metadata & Transparency Risk (Low Weight)
+
+Check:
+
+Missing metadata
+
+No socials
+
+Renounced or not
+
+Scoring:
+
+No metadata → +5
+
+No socials → +5
+
+🧮 Final Rug Score Formula
+Rug Score = min(100, sum of all risk points)
+
+
+Optional normalization:
+
+Clamp between 0–100
+
+Round to nearest integer
+
+🎯 How to Show It in the App (UX)
+
+Don’t scare users. Make it clean.
+
+Example:
+
+Rug Risk Score: 72 / 100
+🔴 High Risk
+
+Main contributors:
+
+Liquidity not locked
+
+High dev-controlled supply
+
+Insider-linked activity detected
+
+No wallet addresses. No accusations.
+
+🧠 EXACT PROMPT (Copy–Paste for Replit / AI)
+
+This is what you asked for 👇
+
+🔹 Rug Score Calculation Prompt
+
+Implement a Rug Risk Score (0–100) for Solana tokens based on aggregated on-chain risk signals.
+
+Signals to Analyze:
+
+Liquidity status (locked, burned, duration, % of supply)
+
+Dev-controlled supply percentage
+
+Top holder concentration (excluding LP and program wallets)
+
+Insider-linked activity based on early buy and exit behavior
+
+Contract authority status (mint authority, freeze authority)
+
+Trading behavior (early volatility, abnormal volume patterns)
+
+Metadata and transparency signals (missing metadata or socials)
+
+Scoring Rules:
+
+Assign weighted risk points to each signal
+
+Aggregate all points into a final score
+
+Clamp final value between 0 and 100
+
+Output Rules (Strict):
+
+Do NOT display wallet addresses
+
+Display only the final Rug Score, risk level (Low / Medium / High), and contributing factors
+
+Use probabilistic and analytical language only
+
+UI Example Output:
+
+Rug Risk Score: 72 / 100
+
+Risk Level: High
+
+Key Risks: Unlocked liquidity, high dev-controlled supply, insider-linked activity
+
+Clearly state that the Rug Score is an analytical risk estimate, not financial advice.
+
+🟢 Optional (Highly Recommended)
+
+Add a confidence bar:
+
+Data Confidence: High / Medium / Low
+(based on age of token & available transactions)

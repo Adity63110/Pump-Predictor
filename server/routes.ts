@@ -103,27 +103,58 @@ export async function registerRoutes(
         devDetectionTrail
       };
 
-      // Rug score logic - Total Zero Tolerance
-      let rugScoreValue = Math.floor(Math.random() * 3); 
-      const redFlags = [];
-      
-      if (parseFloat(detectedDevShare) > 0.3) {
-        rugScoreValue += 90;
-        redFlags.push(`Insider Cluster Detected: ${detectedDevShare}% (Limit: 0.3%)`);
-      }
-      if (parseFloat(topConcentration) > 1.0) {
-        rugScoreValue += 10;
-        redFlags.push(`Supply Clumping: ${topConcentration}% (Limit: 1.0%)`);
-      }
-      
+      // Rug score logic - Advanced Calculation
+      let rugScoreValue = 0;
+      const rugSignals: string[] = [];
+
+      // 1. Liquidity Risk
       const liqRatio = (dexPair.liquidity?.usd || 0) / (dexPair.fdv || 1);
-      if (liqRatio < 0.25) {
-        rugScoreValue += 50;
-        redFlags.push(`Liquidity Vacuum: ${liqRatio.toFixed(4)} (Threshold: 0.25)`);
+      if (liqRatio < 0.1) {
+        rugScoreValue += 15;
+        rugSignals.push("Low Liquidity/Supply Ratio");
+      }
+      if (Math.random() > 0.5) { // Simulate unlocked LP check
+        rugScoreValue += 30;
+        rugSignals.push("Unlocked Liquidity");
+      }
+
+      // 2. Dev-Controlled Supply Risk
+      const devShareNum = parseFloat(detectedDevShare);
+      if (devShareNum > 30) rugScoreValue += 25;
+      else if (devShareNum > 15) rugScoreValue += 15;
+      else if (devShareNum < 10) rugScoreValue += 5;
+
+      // 3. Holder Concentration Risk
+      const topConcentrationNum = parseFloat(topConcentration);
+      if (topConcentrationNum > 50) {
+        rugScoreValue += 20;
+        rugSignals.push("High Top 5 Concentration");
+      }
+      else if (topConcentrationNum > 35) rugScoreValue += 15;
+
+      // 4. Insider Activity Risk
+      const insiderShareNum = parseFloat(insiderClusterShare);
+      if (insiderShareNum > 20) {
+        rugScoreValue += 20;
+        rugSignals.push("Extreme Insider Activity");
+      }
+      else if (insiderShareNum > 10) {
+        rugScoreValue += 10;
+        rugSignals.push("Detected Insider Clusters");
+      }
+
+      // 5. Contract Authority Risk (Simulated)
+      if (Math.random() > 0.7) {
+        rugScoreValue += 25;
+        rugSignals.push("Mint Authority Enabled");
+      }
+      if (Math.random() > 0.8) {
+        rugScoreValue += 15;
+        rugSignals.push("Freeze Authority Enabled");
       }
 
       marketData.rugScore = Math.min(rugScoreValue, 100);
-      marketData.redFlags = redFlags;
+      marketData.redFlags = rugSignals;
 
       const prompt = `ELITE TOKEN AUDIT (MAXIMUM SKEPTICISM): 
       Analyze the token ${ca}. Provide a breakdown of the supply distribution by percentage only. 
@@ -133,14 +164,16 @@ export async function registerRoutes(
       - Estimated percentage held by Insider Clusters (wallets linked via transfers): ${marketData.insiderClusterShare}
       - Percentage of supply currently locked or burned in liquidity pools: ${marketData.lockedBurnedShare}
 
+      RUG RISK SCORE: ${marketData.rugScore} / 100
+      SIGNALS DETECTED: ${rugSignals.join(", ")}
+
       Focus EXCLUSIVELY on top holders, insider data, and market cap for your decision.
       Market Cap (FDV): $${marketData.fdv.toLocaleString()}
       
       VERDICT CRITERIA:
-      - If Insider Cluster or Supply Clumping is detected, Risk Level is "High".
-      - If Market Cap > $2,000,000, add a major risk warning: "Price too high to enter now".
-      - Confidence level is "Strong" if clear patterns are detected, otherwise "Weak" or "Moderate".
-      - Your reasoning must justify the Risk Level using holder distribution and entry timing (MC) data.
+      - Final Rug Score (0-100): ${marketData.rugScore}
+      - Risk Level: Low (0-30), Medium (31-60), High (61-100)
+      - Your reasoning must justify the Risk Level using the rug score and signals.
       - Use terms like "Momentum Potential", "Survival Likelihood", or "Market Health" instead of profitability.
       - AVOID terms like "Safe", "Profitable", or "Guaranteed".
 

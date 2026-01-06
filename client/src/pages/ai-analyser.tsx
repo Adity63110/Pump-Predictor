@@ -85,14 +85,21 @@ export default function AIAnalyser() {
               </div>
               <div>
                 <h2 className="text-3xl font-bold">{analysis.name} (${analysis.symbol})</h2>
-                <p className="text-muted-foreground font-mono text-sm">{ca}</p>
+                <div className="flex items-center gap-2 mt-1">
+                  <span className="text-muted-foreground font-mono text-sm">{ca}</span>
+                  <span className="text-xs bg-muted px-2 py-0.5 rounded font-bold">Confidence: {analysis.confidence}</span>
+                </div>
               </div>
             </div>
-            <div className="text-center">
-              <div className={`text-4xl font-black mb-1 ${analysis.riskLevel === 'Low' ? 'text-w-green' : analysis.riskLevel === 'Medium' ? 'text-yellow-500' : 'text-trash-red'}`}>
-                {analysis.riskLevel}
+            <div className="text-right">
+              <div className="flex flex-col items-end">
+                <div className={`text-4xl font-black ${analysis.riskLevel === 'Low' ? 'text-w-green' : analysis.riskLevel === 'Medium' ? 'text-yellow-500' : 'text-trash-red'}`}>
+                  {analysis.rugScore} / 100
+                </div>
+                <div className={`text-sm font-bold uppercase tracking-widest ${analysis.riskLevel === 'Low' ? 'text-w-green' : analysis.riskLevel === 'Medium' ? 'text-yellow-500' : 'text-trash-red'}`}>
+                  {analysis.riskLevel} Risk
+                </div>
               </div>
-              <p className="text-xs uppercase tracking-widest font-bold text-muted-foreground">AI Risk Level</p>
             </div>
           </div>
 
@@ -198,7 +205,7 @@ export default function AIAnalyser() {
                   <CardHeader>
                     <CardTitle className="text-sm font-bold text-trash-red flex items-center gap-2">
                       <ShieldAlert className="h-4 w-4" />
-                      Detected Red Flags
+                      Key Risk Factors
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
