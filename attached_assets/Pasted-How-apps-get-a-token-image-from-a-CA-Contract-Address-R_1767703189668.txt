@@ -1,0 +1,136 @@
+How apps get a token image from a CA (Contract Address)
+
+Replit itself cannot magically extract an image from a CA.
+You must fetch it from on-chain metadata or an indexer API.
+
+For Pump.fun / Solana tokens, this is the usual flow 👇
+
+✅ Correct Pipeline (Pump.fun / Solana)
+1️⃣ User enters Token CA
+
+Example:
+
+8J8JW5TAokZ6bMGyozYvhTNMr2VNbFnKSNpyLmmux5R9
+
+2️⃣ Fetch token metadata using an API
+
+You DO NOT scrape Pump.fun directly.
+
+Use one of these (best → easiest):
+
+🔥 Option A: Helius API (BEST)
+
+Used by many Solana dashboards.
+
+Gets:
+
+token name
+
+symbol
+
+image URL
+
+metadata URI
+
+👉 Image usually hosted on Arweave / IPFS
+
+🔥 Option B: Solana FM / Shyft
+
+Also works but slightly slower.
+
+🧩 Example Flow (What Replit Should Do)
+Backend (Node.js / Express)
+POST /api/token
+body: { ca }
+
+Backend logic:
+
+Call Helius
+
+Extract metadata.image
+
+Store it
+
+Send it to frontend
+
+🧪 Example Code (Replit-ready)
+🔹 Backend (Node.js)
+import fetch from "node-fetch";
+
+const HELIUS_API_KEY = "YOUR_API_KEY";
+
+export async function getTokenImage(ca) {
+  const res = await fetch(
+    `https://api.helius.xyz/v0/token-metadata?api-key=${HELIUS_API_KEY}`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        mintAccounts: [ca],
+        includeOffChain: true
+      })
+    }
+  );
+
+  const data = await res.json();
+  return data[0]?.offChainMetadata?.image || null;
+}
+
+🔹 Frontend (React / Next)
+<img
+  src={tokenImage || "/placeholder.png"}
+  alt="Token Logo"
+  className="w-10 h-10 rounded"
+/>
+
+🧠 Why Images Sometimes Don’t Show
+
+Common reasons (VERY common on pump.fun):
+
+❌ Token has no metadata
+
+❌ Image hosted on broken IPFS
+
+❌ CORS blocked
+
+❌ Metadata not uploaded yet
+
+❌ Token is a rug with fake metadata 😈
+
+👉 Always add a fallback image.
+
+🔥 Pro UX Tip (Polymarket-style)
+
+If image is missing:
+
+Show a gradient avatar
+
+Or first letter of token
+
+Or Pump.fun green circle
+
+This keeps UI clean and avoids broken-image icons.
+
+🧪 Optional: Cache Images
+
+To save API calls:
+
+Store image URL in DB
+
+Key = CA
+
+Expire after 24h
+
+TL;DR
+
+Replit cannot extract images by itself
+
+You must:
+
+Use Helius / Shyft
+
+Read off-chain metadata
+
+Display metadata.image
+
+This is exactly how Pump.fun, Birdeye, DexScreener do it

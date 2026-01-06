@@ -29,10 +29,10 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground font-sans selection:bg-w-green/30">
+    <div className="bg-background text-foreground font-sans selection:bg-w-green/30">
       
       {/* Hero Section */}
-      <div className="relative pt-20 pb-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto flex flex-col items-center text-center">
+      <div className="relative py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto flex flex-col items-center text-center">
         
         <div className="absolute top-0 inset-x-0 h-96 bg-gradient-to-b from-w-green/5 to-transparent pointer-events-none" />
         
