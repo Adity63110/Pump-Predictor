@@ -36,8 +36,20 @@ export default function Home() {
         
         <div className="absolute top-0 inset-x-0 h-96 bg-gradient-to-b from-w-green/5 to-transparent pointer-events-none" />
         
+        <h1 className="text-5xl sm:text-7xl font-extrabold tracking-tight mb-6 font-display">
+          <span className="text-w-green drop-shadow-[0_0_15px_rgba(74,222,128,0.3)]">W</span> 
+          <span className="mx-2 text-muted-foreground text-4xl sm:text-6xl font-light italic">or</span> 
+          <span className="text-trash-red drop-shadow-[0_0_15px_rgba(248,113,113,0.3)]">TRASH</span>
+          <span className="text-primary">?</span>
+        </h1>
+        
+        <p className="text-xl text-muted-foreground max-w-2xl mb-12 font-light">
+          The public verdict layer for Pump.fun. No fake certainty. <br className="hidden sm:block"/>
+          Only raw crowd signals and on-chain data.
+        </p>
+
         {/* Main Input */}
-        <div className="w-full max-w-2xl relative z-10 group mt-8">
+        <div className="w-full max-w-2xl relative z-10 group">
           <div className="absolute -inset-1 bg-gradient-to-r from-w-green/20 via-primary/20 to-trash-red/20 rounded-lg blur opacity-75 group-hover:opacity-100 transition duration-1000 group-hover:duration-200"></div>
           <form onSubmit={handleSearch} className="relative flex gap-2 bg-card p-2 rounded-lg border border-border ring-1 ring-white/10 shadow-2xl">
             <div className="relative flex-1">
