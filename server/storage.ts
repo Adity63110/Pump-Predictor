@@ -23,8 +23,6 @@ export class MemStorage implements IStorage {
     this.users = new Map();
     this.markets = new Map();
     this.votes = new Map();
-    
-    // Seed with initial mock data
     this.seed();
   }
 
@@ -63,7 +61,18 @@ export class MemStorage implements IStorage {
     ];
 
     initialMarkets.forEach(m => {
-      const market = { ...m, id: m.id || randomUUID() } as Market;
+      const market: Market = {
+        ...m,
+        id: m.id || randomUUID(),
+        imageUrl: m.imageUrl ?? "",
+        marketCap: m.marketCap ?? 0,
+        devWalletPct: m.devWalletPct ?? "0",
+        isFrozen: m.isFrozen ?? false,
+        rugScale: m.rugScale ?? 0,
+        wVotes: m.wVotes ?? 0,
+        trashVotes: m.trashVotes ?? 0,
+        chartData: m.chartData ?? [],
+      };
       this.markets.set(market.id, market);
     });
   }
@@ -99,7 +108,18 @@ export class MemStorage implements IStorage {
 
   async createMarket(insertMarket: InsertMarket): Promise<Market> {
     const id = insertMarket.id || randomUUID();
-    const market: Market = { ...insertMarket, id };
+    const market: Market = {
+      ...insertMarket,
+      id,
+      imageUrl: insertMarket.imageUrl ?? "",
+      marketCap: insertMarket.marketCap ?? 0,
+      devWalletPct: insertMarket.devWalletPct ?? "0",
+      isFrozen: insertMarket.isFrozen ?? false,
+      rugScale: insertMarket.rugScale ?? 0,
+      wVotes: insertMarket.wVotes ?? 0,
+      trashVotes: insertMarket.trashVotes ?? 0,
+      chartData: insertMarket.chartData ?? [],
+    };
     this.markets.set(id, market);
     return market;
   }
@@ -115,7 +135,12 @@ export class MemStorage implements IStorage {
 
   async addVote(insertVote: InsertVote): Promise<Vote> {
     const id = randomUUID();
-    const vote: Vote = { ...insertVote, id, createdAt: new Date() };
+    const vote: Vote = {
+      ...insertVote,
+      id,
+      ipAddress: insertVote.ipAddress ?? "",
+      createdAt: new Date(),
+    };
     this.votes.set(id, vote);
     await this.updateMarketVotes(vote.marketId, vote.type as 'w' | 'trash');
     return vote;
