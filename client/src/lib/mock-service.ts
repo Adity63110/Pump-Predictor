@@ -144,6 +144,15 @@ export const mockService = {
             price: currentPrice * (0.98 + Math.random() * 0.04) 
           }));
         }
+        
+        // Add volume from DexScreener if available
+        if (dexPair?.volume?.h24) {
+          (token as any).volume24h = dexPair.volume.h24;
+        }
+        if (dexPair?.liquidity?.usd) {
+          (token as any).liquidity = dexPair.liquidity.usd;
+        }
+        
         return token;
       }
       
@@ -177,6 +186,8 @@ export const mockService = {
           ...newMarket,
           devWalletPct: 5.0,
           votes: { w: 0, trash: 0 },
+          volume24h: dexPair.volume?.h24 || 0,
+          liquidity: dexPair.liquidity?.usd || 0,
           chartData: generateChartData().map(d => ({ 
             ...d, 
             price: currentPrice * (0.98 + Math.random() * 0.04) 
