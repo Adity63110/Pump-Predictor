@@ -186,15 +186,7 @@ export default function TokenRoom() {
             <RugScale score={token.rugScale} />
             
             <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                    <div className="p-4 rounded-lg bg-card border border-border">
-                        <div className="text-xs text-muted-foreground mb-1">Holders</div>
-                        <div className="text-lg font-mono font-bold">1,240</div>
-                    </div>
-                    <div className="p-4 rounded-lg bg-card border border-border">
-                        <div className="text-xs text-muted-foreground mb-1">Liquidity</div>
-                        <div className="text-lg font-mono font-bold">${(token as any).liquidity ? ((token as any).liquidity / 1000).toFixed(1) + 'k' : 'N/A'}</div>
-                    </div>
+                <div className="grid grid-cols-1 gap-4">
                     <div className="p-4 rounded-lg bg-card border border-border">
                         <div className="text-xs text-muted-foreground mb-1">Top 10</div>
                         <div className="text-lg font-mono font-bold text-yellow-500">14.5%</div>
