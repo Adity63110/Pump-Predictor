@@ -151,25 +151,29 @@ export default function TokenRoom() {
                 <Button 
                     size="lg" 
                     className={cn(
-                        "h-20 text-xl font-bold uppercase tracking-wider transition-all border-2",
-                        userVote === 'w' ? "bg-w-green/20 text-w-green border-w-green ring-2 ring-w-green/50" : "bg-secondary/50 hover:bg-w-green/10 hover:text-w-green hover:border-w-green/50 border-transparent"
+                        "h-28 text-4xl font-black uppercase tracking-tighter transition-all flex flex-col items-center justify-center gap-1",
+                        "bg-w-green text-white hover:brightness-110 active:scale-95 shadow-lg shadow-w-green/20",
+                        userVote === 'w' ? "ring-4 ring-white" : (userVote !== null ? "opacity-30 grayscale" : "")
                     )}
                     onClick={() => handleVote('w')}
                     disabled={userVote !== null}
                 >
-                    <ThumbsUp className="w-6 h-6 mr-2" /> W (Hold)
+                    <ThumbsUp className="w-10 h-10" />
+                    <span>W</span>
                 </Button>
 
                 <Button 
                     size="lg" 
                     className={cn(
-                        "h-20 text-xl font-bold uppercase tracking-wider transition-all border-2",
-                        userVote === 'trash' ? "bg-trash-red/20 text-trash-red border-trash-red ring-2 ring-trash-red/50" : "bg-secondary/50 hover:bg-trash-red/10 hover:text-trash-red hover:border-trash-red/50 border-transparent"
+                        "h-28 text-4xl font-black uppercase tracking-tighter transition-all flex flex-col items-center justify-center gap-1",
+                        "bg-trash-red text-white hover:brightness-110 active:scale-95 shadow-lg shadow-trash-red/20",
+                        userVote === 'trash' ? "ring-4 ring-white" : (userVote !== null ? "opacity-30 grayscale" : "")
                     )}
                     onClick={() => handleVote('trash')}
                     disabled={userVote !== null}
                 >
-                    <ThumbsDown className="w-6 h-6 mr-2" /> Trash (Rug)
+                    <ThumbsDown className="w-10 h-10" />
+                    <span>TRASH</span>
                 </Button>
              </div>
              
