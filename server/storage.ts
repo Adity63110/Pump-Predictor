@@ -79,6 +79,32 @@ export class DatabaseStorage implements IStorage {
   }
 
   async addVote(insertVote: InsertVote): Promise<Vote> {
+    const existingVote = await this.getVote(insertVote.marketId, insertVote.voterWallet);
+    if (existingVote) {
+      if (existingVote.type === insertVote.type) {
+        return existingVote;
+      }
+      // Update existing vote
+      const [updatedVote] = await db.update(votes)
+        .set({ type: insertVote.type })
+        .where(eq(votes.id, existingVote.id))
+        .returning();
+      
+      // Update market counts
+      if (insertVote.type === 'W') {
+        await db.update(markets).set({ 
+          wVotes: sql`${markets.wVotes} + 1`,
+          trashVotes: sql`CASE WHEN ${markets.trashVotes} > 0 THEN ${markets.trashVotes} - 1 ELSE 0 END`
+        }).where(eq(markets.id, insertVote.marketId));
+      } else {
+        await db.update(markets).set({ 
+          trashVotes: sql`${markets.trashVotes} + 1`,
+          wVotes: sql`CASE WHEN ${markets.wVotes} > 0 THEN ${markets.wVotes} - 1 ELSE 0 END`
+        }).where(eq(markets.id, insertVote.marketId));
+      }
+      return updatedVote;
+    }
+
     const [vote] = await db.insert(votes).values(insertVote).returning();
     await this.updateMarketVotes(vote.marketId, vote.type as 'W' | 'TRASH');
     return vote;

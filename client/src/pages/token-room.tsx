@@ -19,37 +19,68 @@ export default function TokenRoom() {
   useEffect(() => {
     if (params?.id) {
       setLoading(true);
-      mockService.getToken(params.id).then((t) => {
-        setToken(t || null);
-        setLoading(false);
-      });
+      // Fetch token from real API instead of mock
+      fetch(`/api/markets/${params.id}`)
+        .then(res => res.json())
+        .then((t) => {
+          setToken(t || null);
+          setLoading(false);
+          
+          // Check if user has already voted (simulated with local storage for now, 
+          // or we could add an endpoint to check by IP/Fingerprint)
+          const savedVote = localStorage.getItem(`vote_${params.id}`);
+          if (savedVote) {
+            setUserVote(savedVote as 'w' | 'trash');
+          }
+        });
     }
   }, [params?.id]);
 
   const handleVote = async (type: 'w' | 'trash') => {
     if (!token) return;
     
-    // Optimistic update
-    setUserVote(type);
-    setToken(prev => {
-      if (!prev) return null;
-      return {
-        ...prev,
-        votes: {
-          w: type === 'w' ? prev.votes.w + 1 : prev.votes.w,
-          trash: type === 'trash' ? prev.votes.trash + 1 : prev.votes.trash
-        }
-      };
-    });
+    try {
+      // Create a temporary wallet ID for the user if not exists
+      let voterWallet = localStorage.getItem('voter_wallet');
+      if (!voterWallet) {
+        voterWallet = 'user_' + Math.random().toString(36).substring(7);
+        localStorage.setItem('voter_wallet', voterWallet);
+      }
 
-    await mockService.vote(token.id, type);
-    
-    toast({
-      title: type === 'w' ? "Voted W 🟢" : "Voted Trash 🔴",
-      description: "Your signal has been recorded on-chain (simulated).",
-      duration: 2000,
-      className: type === 'w' ? "border-w-green text-w-green" : "border-trash-red text-trash-red"
-    });
+      const res = await fetch("/api/votes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          marketId: token.id,
+          voterWallet: voterWallet,
+          type: type.toUpperCase()
+        })
+      });
+
+      if (!res.ok) throw new Error("Vote failed");
+
+      // Update state and persistence
+      setUserVote(type);
+      localStorage.setItem(`vote_${token.id}`, type);
+      
+      // Refresh token data to show updated counts
+      const updatedRes = await fetch(`/api/markets/${token.id}`);
+      const updatedToken = await updatedRes.json();
+      setToken(updatedToken);
+      
+      toast({
+        title: type === 'w' ? "Voted W 🟢" : "Voted Trash 🔴",
+        description: "Your signal has been recorded.",
+        duration: 2000,
+        className: type === 'w' ? "border-w-green text-w-green" : "border-trash-red text-trash-red"
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to cast vote. Please try again.",
+        variant: "destructive"
+      });
+    }
   };
 
   if (loading) return (
@@ -106,8 +137,8 @@ export default function TokenRoom() {
                   {token.name} <span className="text-muted-foreground text-lg font-mono font-normal">/ {token.symbol}</span>
                 </h1>
                 <div className="flex items-center gap-4 mt-1 text-sm text-muted-foreground font-mono">
-                  <span className="flex items-center gap-1"><Activity className="w-3 h-3" /> MC: ${(token.marketCap / 1000).toFixed(0)}k</span>
-                  <span className="flex items-center gap-1 text-trash-red"><AlertOctagon className="w-3 h-3" /> Dev: {token.devWalletPct}%</span>
+                  <span className="flex items-center gap-1"><Activity className="w-3 h-3" /> MC: ${((token.marketCap || 0) / 1000).toFixed(0)}k</span>
+                  <span className="flex items-center gap-1 text-trash-red"><AlertOctagon className="w-3 h-3" /> Dev: {token.devWalletPct || 0}%</span>
                 </div>
               </div>
             </div>
@@ -135,17 +166,17 @@ export default function TokenRoom() {
           <div className="bg-card rounded-xl border border-border p-6 shadow-xl relative overflow-hidden">
              {/* Background Glow based on majority */}
              <div className={cn("absolute inset-0 opacity-5 pointer-events-none", 
-                token.votes.w > token.votes.trash ? "bg-w-green" : "bg-trash-red"
+                ((token as any).wVotes || 0) > ((token as any).trashVotes || 0) ? "bg-w-green" : "bg-trash-red"
              )} />
              
              <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
                 Public Verdict
                 <span className="text-xs font-normal text-muted-foreground bg-secondary px-2 py-1 rounded-full">
-                    {token.votes.w + token.votes.trash} votes
+                    {((token as any).wVotes || 0) + ((token as any).trashVotes || 0)} votes
                 </span>
              </h2>
 
-             <VotingBar wVotes={token.votes.w} trashVotes={token.votes.trash} className="mb-8" />
+             <VotingBar wVotes={(token as any).wVotes || 0} trashVotes={(token as any).trashVotes || 0} className="mb-8" />
 
              <div className="grid grid-cols-2 gap-4">
                 <Button 
@@ -187,7 +218,7 @@ export default function TokenRoom() {
 
         {/* Right Column: Data & Chat */}
         <div className="lg:col-span-4 space-y-6">
-            <RugScale score={token.rugScale} />
+            <RugScale score={token.rugScale || 0} />
             
             <div className="space-y-4">
                 <div className="grid grid-cols-1 gap-4">
