@@ -28,8 +28,17 @@ export const markets = pgTable("markets", {
 export const votes = pgTable("votes", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   marketId: varchar("market_id").notNull().references(() => markets.id),
-  type: text("type").notNull(), // 'w' or 'trash'
-  ipAddress: text("ip_address").default(""),
+  voterWallet: text("voter_wallet").notNull(),
+  type: text("type").notNull(), // 'W' or 'TRASH'
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const messages = pgTable("messages", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  marketId: varchar("market_id").notNull().references(() => markets.id),
+  voterWallet: text("voter_wallet").notNull(),
+  messageText: text("message_text").notNull(),
+  type: text("type").notNull().default("default"),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -40,6 +49,7 @@ export const insertUserSchema = createInsertSchema(users).pick({
 
 export const insertMarketSchema = createInsertSchema(markets);
 export const insertVoteSchema = createInsertSchema(votes);
+export const insertMessageSchema = createInsertSchema(messages);
 
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
@@ -47,3 +57,5 @@ export type Market = typeof markets.$inferSelect;
 export type InsertMarket = z.infer<typeof insertMarketSchema>;
 export type Vote = typeof votes.$inferSelect;
 export type InsertVote = z.infer<typeof insertVoteSchema>;
+export type Message = typeof messages.$inferSelect;
+export type InsertMessage = z.infer<typeof insertMessageSchema>;

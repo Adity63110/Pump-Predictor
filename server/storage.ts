@@ -1,5 +1,12 @@
-import { type User, type InsertUser, type Market, type InsertMarket, type Vote, type InsertVote } from "@shared/schema";
-import { randomUUID } from "crypto";
+import { 
+  type User, type InsertUser, 
+  type Market, type InsertMarket, 
+  type Vote, type InsertVote,
+  type Message, type InsertMessage,
+  users, markets, votes, messages
+} from "@shared/schema";
+import { db } from "./db";
+import { eq, and, desc, sql } from "drizzle-orm";
 
 export interface IStorage {
   getUser(id: string): Promise<User | undefined>;
@@ -10,141 +17,84 @@ export interface IStorage {
   getMarketByCA(ca: string): Promise<Market | undefined>;
   getTrendingMarkets(): Promise<Market[]>;
   createMarket(market: InsertMarket): Promise<Market>;
-  updateMarketVotes(id: string, type: 'w' | 'trash'): Promise<void>;
+  updateMarketVotes(id: string, type: 'W' | 'TRASH'): Promise<void>;
+  
+  getVote(marketId: string, voterWallet: string): Promise<Vote | undefined>;
   addVote(vote: InsertVote): Promise<Vote>;
+  
+  getMessages(marketId: string): Promise<Message[]>;
+  addMessage(message: InsertMessage): Promise<Message>;
 }
 
-export class MemStorage implements IStorage {
-  private users: Map<string, User>;
-  private markets: Map<string, Market>;
-  private votes: Map<string, Vote>;
-
-  constructor() {
-    this.users = new Map();
-    this.markets = new Map();
-    this.votes = new Map();
-    this.seed();
-  }
-
-  private seed() {
-    const initialMarkets: InsertMarket[] = [
-      {
-        id: "pepe-the-frog",
-        name: "Pepe",
-        symbol: "PEPE",
-        ca: "0x6982508145454Ce325dDbE47a25d4ec3d2311933",
-        imageUrl: "https://cryptologos.cc/logos/pepe-pepe-logo.png",
-        marketCap: 420000000,
-        launchTime: "2023-04-14T00:00:00Z",
-        devWalletPct: "1.2",
-        isFrozen: false,
-        rugScale: 12,
-        wVotes: 8540,
-        trashVotes: 1230,
-        chartData: [],
-      },
-      {
-        id: "rug-pull-inu",
-        name: "RugPull Inu",
-        symbol: "RUG",
-        ca: "8h4k3j2l1m4n5o6p7q8r9s0t1u2v3w4x5y6z",
-        imageUrl: "",
-        marketCap: 5000,
-        launchTime: "2025-01-05T12:00:00Z",
-        devWalletPct: "45.0",
-        isFrozen: false,
-        rugScale: 94,
-        wVotes: 12,
-        trashVotes: 980,
-        chartData: [],
-      }
-    ];
-
-    initialMarkets.forEach(m => {
-      const market: Market = {
-        ...m,
-        id: m.id || randomUUID(),
-        imageUrl: m.imageUrl ?? "",
-        marketCap: m.marketCap ?? 0,
-        devWalletPct: m.devWalletPct ?? "0",
-        isFrozen: m.isFrozen ?? false,
-        rugScale: m.rugScale ?? 0,
-        wVotes: m.wVotes ?? 0,
-        trashVotes: m.trashVotes ?? 0,
-        chartData: m.chartData ?? [],
-      };
-      this.markets.set(market.id, market);
-    });
-  }
-
+export class DatabaseStorage implements IStorage {
   async getUser(id: string): Promise<User | undefined> {
-    return this.users.get(id);
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user;
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(u => u.username === username);
+    const [user] = await db.select().from(users).where(eq(users.username, username));
+    return user;
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
-    const id = randomUUID();
-    const user: User = { ...insertUser, id };
-    this.users.set(id, user);
+    const [user] = await db.insert(users).values(insertUser).returning();
     return user;
   }
 
   async getMarket(id: string): Promise<Market | undefined> {
-    return this.markets.get(id);
-  }
-
-  async getMarketByCA(ca: string): Promise<Market | undefined> {
-    return Array.from(this.markets.values()).find(m => m.ca === ca);
-  }
-
-  async getTrendingMarkets(): Promise<Market[]> {
-    return Array.from(this.markets.values())
-      .sort((a, b) => (b.wVotes + b.trashVotes) - (a.wVotes + a.trashVotes))
-      .slice(0, 10);
-  }
-
-  async createMarket(insertMarket: InsertMarket): Promise<Market> {
-    const id = insertMarket.id || randomUUID();
-    const market: Market = {
-      ...insertMarket,
-      id,
-      imageUrl: insertMarket.imageUrl ?? "",
-      marketCap: insertMarket.marketCap ?? 0,
-      devWalletPct: insertMarket.devWalletPct ?? "0",
-      isFrozen: insertMarket.isFrozen ?? false,
-      rugScale: insertMarket.rugScale ?? 0,
-      wVotes: insertMarket.wVotes ?? 0,
-      trashVotes: insertMarket.trashVotes ?? 0,
-      chartData: insertMarket.chartData ?? [],
-    };
-    this.markets.set(id, market);
+    const [market] = await db.select().from(markets).where(eq(markets.id, id));
     return market;
   }
 
-  async updateMarketVotes(id: string, type: 'w' | 'trash'): Promise<void> {
-    const market = this.markets.get(id);
-    if (market) {
-      if (type === 'w') market.wVotes++;
-      else market.trashVotes++;
-      this.markets.set(id, market);
+  async getMarketByCA(ca: string): Promise<Market | undefined> {
+    const [market] = await db.select().from(markets).where(eq(markets.ca, ca));
+    return market;
+  }
+
+  async getTrendingMarkets(): Promise<Market[]> {
+    return await db.select().from(markets)
+      .orderBy(desc(sql`${markets.wVotes} + ${markets.trashVotes}`))
+      .limit(10);
+  }
+
+  async createMarket(insertMarket: InsertMarket): Promise<Market> {
+    const [market] = await db.insert(markets).values(insertMarket).returning();
+    return market;
+  }
+
+  async updateMarketVotes(id: string, type: 'W' | 'TRASH'): Promise<void> {
+    if (type === 'W') {
+      await db.update(markets).set({ wVotes: sql`${markets.wVotes} + 1` }).where(eq(markets.id, id));
+    } else {
+      await db.update(markets).set({ trashVotes: sql`${markets.trashVotes} + 1` }).where(eq(markets.id, id));
     }
   }
 
-  async addVote(insertVote: InsertVote): Promise<Vote> {
-    const id = randomUUID();
-    const vote: Vote = {
-      ...insertVote,
-      id,
-      ipAddress: insertVote.ipAddress ?? "",
-      createdAt: new Date(),
-    };
-    this.votes.set(id, vote);
-    await this.updateMarketVotes(vote.marketId, vote.type as 'w' | 'trash');
+  async getVote(marketId: string, voterWallet: string): Promise<Vote | undefined> {
+    const [vote] = await db.select().from(votes).where(
+      and(eq(votes.marketId, marketId), eq(votes.voterWallet, voterWallet))
+    );
     return vote;
+  }
+
+  async addVote(insertVote: InsertVote): Promise<Vote> {
+    const [vote] = await db.insert(votes).values(insertVote).returning();
+    await this.updateMarketVotes(vote.marketId, vote.type as 'W' | 'TRASH');
+    return vote;
+  }
+
+  async getMessages(marketId: string): Promise<Message[]> {
+    return await db.select().from(messages)
+      .where(eq(messages.marketId, marketId))
+      .orderBy(desc(messages.createdAt))
+      .limit(50);
+  }
+
+  async addMessage(insertMessage: InsertMessage): Promise<Message> {
+    const [message] = await db.insert(messages).values(insertMessage).returning();
+    return message;
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();
