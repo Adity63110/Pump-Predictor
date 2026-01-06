@@ -40,19 +40,11 @@ export default function TokenRoom() {
     if (!token) return;
     
     try {
-      // Create a temporary wallet ID for the user if not exists
-      let voterWallet = localStorage.getItem('voter_wallet');
-      if (!voterWallet) {
-        voterWallet = 'user_' + Math.random().toString(36).substring(7);
-        localStorage.setItem('voter_wallet', voterWallet);
-      }
-
       const res = await fetch("/api/votes", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           marketId: token.id,
-          voterWallet: voterWallet,
           type: type.toUpperCase()
         })
       });
@@ -77,7 +69,7 @@ export default function TokenRoom() {
     } catch (error) {
       toast({
         title: "Error",
-        description: "Failed to cast vote. Please try again.",
+        description: "Failed to cast vote. One vote per IP allowed.",
         variant: "destructive"
       });
     }

@@ -38,7 +38,13 @@ export async function registerRoutes(
   });
 
   app.post("/api/votes", async (req, res) => {
-    const result = insertVoteSchema.safeParse(req.body);
+    const clientIp = (req.headers['x-forwarded-for'] as string || req.ip || req.socket.remoteAddress || 'unknown').split(',')[0].trim();
+    
+    const result = insertVoteSchema.safeParse({
+      ...req.body,
+      voterWallet: clientIp // Override with IP address for restriction
+    });
+
     if (!result.success) {
       return res.status(400).json({ error: result.error });
     }
