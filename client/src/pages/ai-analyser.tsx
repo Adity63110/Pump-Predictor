@@ -3,7 +3,8 @@ import { useLocation } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { BrainCircuit, Loader2, Search, ArrowRight, ShieldCheck, ShieldAlert, Coins, Users, Activity } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
+import { BrainCircuit, Loader2, Search, ArrowRight, ShieldCheck, ShieldAlert, Coins, Users, Activity, FlaskConical } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -246,9 +247,28 @@ export default function AIAnalyser() {
                 </Card>
               </div>
 
-          <Card className="bg-primary/5 border-primary/20 flex-1">
-            <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle>AI Reasoning & Verdict</CardTitle>
+              <Card className="border-primary/20 bg-primary/5">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-bold flex items-center gap-2">
+                    <FlaskConical className="h-4 w-4 text-primary" />
+                    Bonding Progress
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                  <div className="flex justify-between items-center text-sm font-bold">
+                    <span>{analysis.bondingProgress}% Complete</span>
+                    <span className="text-muted-foreground text-xs font-medium">Bonding Curve Phase</span>
+                  </div>
+                  <Progress value={analysis.bondingProgress} className="h-3 bg-muted" />
+                  <p className="text-[10px] text-muted-foreground italic">
+                    Progress toward migration to Raydium/DEX. High progress indicates imminent graduation.
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-primary/5 border-primary/20 flex-1">
+                <CardHeader className="flex flex-row items-center justify-between">
+                  <CardTitle>AI Reasoning & Verdict</CardTitle>
               <div className={`px-4 py-1 rounded-full text-sm font-bold border ${
                 analysis.riskLevel === 'Low' 
                   ? 'bg-w-green/10 text-w-green border-w-green/20' 

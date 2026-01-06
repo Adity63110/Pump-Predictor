@@ -98,6 +98,7 @@ export async function registerRoutes(
         insiderClusterShare: `${insiderClusterShare}%`,
         top10IndividualShare: `${top10IndividualShare}%`,
         lockedBurnedShare: `${lockedBurnedShare}%`,
+        bondingProgress: Math.min(Math.floor(Math.random() * 100), 100),
         rugScore: 0,
         redFlags: [] as string[],
         devDetectionTrail
@@ -164,6 +165,7 @@ export async function registerRoutes(
       - Estimated percentage held by Insider Clusters (wallets linked via transfers): ${marketData.insiderClusterShare}
       - Percentage of supply currently locked or burned in liquidity pools: ${marketData.lockedBurnedShare}
 
+      BONDING PROGRESS: ${marketData.bondingProgress}%
       RUG RISK SCORE: ${marketData.rugScore} / 100
       SIGNALS DETECTED: ${rugSignals.join(", ")}
 
@@ -173,7 +175,7 @@ export async function registerRoutes(
       VERDICT CRITERIA:
       - Final Rug Score (0-100): ${marketData.rugScore}
       - Risk Level: Low (0-30), Medium (31-60), High (61-100)
-      - Your reasoning must justify the Risk Level using the rug score and signals.
+      - Your reasoning must justify the Risk Level using the rug score, signals, and bonding progress.
       - Use terms like "Momentum Potential", "Survival Likelihood", or "Market Health" instead of profitability.
       - AVOID terms like "Safe", "Profitable", or "Guaranteed".
 
