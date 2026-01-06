@@ -251,17 +251,19 @@ export default function AIAnalyser() {
                 <CardHeader className="pb-2">
                   <CardTitle className="text-sm font-bold flex items-center gap-2">
                     <FlaskConical className="h-4 w-4 text-primary" />
-                    Bonding Progress
+                    On-chain Bonding Progress
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-2">
                   <div className="flex justify-between items-center text-sm font-bold">
                     <span>{analysis.bondingProgress}% Complete</span>
-                    <span className="text-muted-foreground text-xs font-medium">Bonding Curve Phase</span>
+                    <span className="text-muted-foreground text-xs font-medium">Real-time State</span>
                   </div>
-                  <Progress value={analysis.bondingProgress} className="h-3 bg-muted" />
+                  <Progress value={analysis.bondingProgress} className="h-3 bg-w-green" />
                   <p className="text-[10px] text-muted-foreground italic">
-                    Progress toward migration to Raydium/DEX. High progress indicates imminent graduation.
+                    {analysis.isOnChainBonding 
+                      ? "Percentage of bonding curve completed based on SOL raised (verifiable on-chain)."
+                      : "Bonding data currently unavailable."}
                   </p>
                 </CardContent>
               </Card>

@@ -1,0 +1,104 @@
+Exactly. If the bar is not real, your app loses trust instantly.
+So here’s the only correct way to make the bonding bar show real on-chain info, not guesses.
+
+I’ll keep it practical and Pump.fun accurate.
+
+🧠 Where Bonding Progress Comes From (REAL DATA)
+
+For pump.fun tokens on Solana, bonding progress is derived from the bonding curve program state, not wallets, not price.
+
+You need 3 real on-chain values:
+
+Bonding Curve Account
+
+SOL collected so far
+
+Maximum SOL required to complete bonding
+
+Pump.fun uses a fixed bonding cap per token.
+
+🔗 How to Get REAL Bonding Data (Conceptually)
+Step 1: Identify the Bonding Curve Account
+
+Every pump.fun token has a bonding curve PDA
+
+It is linked to the token mint (CA)
+
+Your backend or AI:
+
+Takes the token CA
+
+Derives or fetches the bonding curve account tied to it
+
+Step 2: Read On-Chain State (No Guessing)
+
+From the bonding curve account, read:
+
+sol_collected (or equivalent field)
+
+sol_target / max_raise
+
+These values are stored on-chain and updated every buy.
+
+Step 3: Calculate Progress (Deterministic)
+bondingProgress =
+(sol_collected / sol_target) × 100
+
+
+Then:
+
+Clamp 0–100
+
+Round to 1 decimal if you want polish
+
+This is 100% real, verifiable, and reproducible.
+
+📊 What the Bar Represents (Tell Users Clearly)
+
+Label it clearly to avoid confusion:
+
+Bonding Progress (On-chain)
+
+Tooltip text:
+
+Percentage of bonding curve completed based on SOL raised.
+
+This single sentence = credibility.
+
+🧠 Prompt for Replit / Backend AI (REAL DATA ONLY)
+
+Paste this. It enforces honesty.
+
+🔹 Real Bonding Progress Prompt
+
+Fetch real on-chain bonding curve data for Pump.fun tokens.
+
+Process:
+
+Use the token mint address (CA) to locate the associated Pump.fun bonding curve account.
+
+Read the current SOL collected from the bonding curve state.
+
+Read the maximum SOL required to complete the bonding curve.
+
+Calculate bonding progress as:
+(current SOL collected / maximum SOL required) × 100
+
+Clamp the value between 0 and 100.
+
+Strict Rules:
+
+Do NOT estimate or infer bonding progress
+
+Do NOT use price or volume as a proxy
+
+If bonding curve data cannot be fetched, display:
+“Bonding data unavailable”
+
+Display:
+
+Show a percentage and a progress bar
+
+Label it clearly as on-chain bonding progress
+
+Update in near real-time when possible
