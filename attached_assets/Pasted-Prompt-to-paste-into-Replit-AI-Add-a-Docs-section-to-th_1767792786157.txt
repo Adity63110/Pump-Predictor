@@ -1,0 +1,155 @@
+Prompt to paste into Replit AI:
+
+Add a Docs section to the main navbar of the app.
+
+Navbar layout (left → right):
+
+Logo (VX / V-X logo in pump.fun green)
+
+Markets
+
+AI Analyzer
+
+Docs
+
+(Far right) Sign In button
+
+Navbar styling:
+
+Background: pure black or very dark gray
+
+Accent color: pump.fun green #54d292
+
+Font: modern, clean, slightly bold (Gen-Z fintech style)
+
+Hover effects:
+
+Text glows slightly in pump.fun green
+
+Underline animation on hover
+
+When the user clicks Docs, open a dedicated Docs page (not a popup).
+
+📘 Docs Page Content (Pump.fun Style)
+
+Hero Section
+
+Big title:
+“VX Docs”
+
+Subtitle:
+Judge tokens before the chart judges you.
+
+Minimal glow effect in pump.fun green
+
+📂 Docs Sections (Cards or Sidebar)
+1️⃣ What is VX?
+
+Explain the app simply:
+
+Users paste a token CA
+
+Create a voting room
+
+Vote W or Trash
+
+Chat with other traders
+
+See rug risk, bonding progress, and holder stats
+
+2️⃣ How Voting Works
+
+One vote per wallet per token
+
+Votes are stored permanently
+
+Show:
+
+% W votes
+
+% Trash votes
+
+No wallet addresses shown publicly
+
+3️⃣ AI Analyzer
+
+Explain that AI checks:
+
+Dev wallet holding %
+
+Insider wallet concentration
+
+Top holders %
+
+Bonding curve progress
+
+Community sentiment
+
+Clarify:
+
+“AI does NOT give financial advice. It gives signals.”
+
+4️⃣ Rug Score
+
+Rug score is calculated using:
+
+Dev wallet share
+
+Insider wallet clustering
+
+Holder distribution
+
+Vote honesty weighting
+
+Score shown as:
+
+Safe 🟢
+
+Risky 🟡
+
+High Risk 🔴
+
+5️⃣ Bonding Progress
+
+Real-time bonding bar
+
+Shows % of bonding completed
+
+Uses on-chain data (or admin-fed data if API limited)
+
+6️⃣ PumpList
+
+List of trending tokens
+
+Sorted by:
+
+Votes
+
+Volume
+
+Bonding speed
+
+Explain:
+
+“Trending tokens are added manually by admin or trusted sources.”
+
+7️⃣ Disclaimer
+
+Simple, clean warning:
+
+VX is a research and community sentiment tool.
+Always DYOR.
+
+🎨 UI Style Instructions
+
+Use cards with soft green borders
+
+Rounded corners
+
+Subtle glow
+
+No clutter
+
+Mobile responsive
+
+Keep everything fast and minimal
