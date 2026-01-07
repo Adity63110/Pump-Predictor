@@ -63,7 +63,8 @@ export async function registerRoutes(
   
   app.get("/api/pumplist", async (_req, res) => {
     try {
-      let tokensToFetch = TRENDING_TOKENS;
+      // Start with hardcoded tokens
+      let tokensToFetch = [...TRENDING_TOKENS];
 
       // Fetch curated tokens from Supabase table 'trending_tokens' if available
       if (supabase) {
@@ -71,12 +72,15 @@ export async function registerRoutes(
           const { data: trendingRows, error } = await supabase
             .from("trending_tokens")
             .select("ca")
-            .order("created_at", { ascending: false });
+            .order("created_at", { ascending: false })
+            .limit(20);
 
           if (error) {
             console.error("[Supabase] Fetch trending_tokens error:", error);
           } else if (trendingRows && trendingRows.length > 0) {
-            tokensToFetch = trendingRows.map((row: any) => row.ca);
+            const supabaseCAs = trendingRows.map((row: any) => row.ca);
+            // Combine and unique-ify
+            tokensToFetch = Array.from(new Set([...supabaseCAs, ...TRENDING_TOKENS]));
           }
         } catch (err) {
           console.error("[Supabase] Fatal fetch error:", err);
@@ -86,13 +90,13 @@ export async function registerRoutes(
       const tokens = await Promise.all(tokensToFetch.map((ca: string) => fetchTokenData(ca)));
       const filteredTokens = tokens.filter((t: any) => t !== null);
 
-      // Auto-sync to internal markets table
+      // Auto-sync to local markets table for room persistence
       for (const token of filteredTokens) {
         if (!token) continue;
         const existing = await storage.getMarketByCA(token.ca);
         if (!existing) {
           await storage.createMarket({
-            id: token.ca, // Ensure the ID is the CA
+            id: token.ca,
             name: token.name,
             symbol: token.symbol,
             ca: token.ca,
@@ -103,23 +107,12 @@ export async function registerRoutes(
             devWalletPct: token.devWalletPct,
             rugScale: token.rugScore,
           });
-        } else {
-          // Update existing market with latest data
-          await db.update(markets).set({
-            name: token.name,
-            symbol: token.symbol,
-            imageUrl: token.imageUrl || "",
-            marketCap: Math.floor(token.marketCap),
-            volume24h: Math.floor(token.volume24h || 0),
-            devWalletPct: token.devWalletPct,
-            rugScale: token.rugScore,
-          }).where(eq(markets.ca, token.ca));
         }
       }
 
       res.json(filteredTokens);
     } catch (error) {
-      console.error("Supabase fetch error:", error);
+      console.error("Fetch trending error:", error);
       const tokens = await Promise.all(TRENDING_TOKENS.map((ca: string) => fetchTokenData(ca)));
       res.json(tokens.filter((t: any) => t !== null));
     }
