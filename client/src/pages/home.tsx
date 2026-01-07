@@ -125,6 +125,7 @@ export default function Home() {
                           Dev: {token.devWalletPct}%
                         </span>
                         <span>MC: ${(token.marketCap / 1000).toFixed(0)}k</span>
+                        <span>Vol: ${(token.volume24h / 1000).toFixed(1)}k</span>
                       </div>
                       <div className="flex items-center gap-1 text-[10px] font-black text-[#54d292] uppercase">
                          Audit <ShieldCheck className="w-3 h-3" />

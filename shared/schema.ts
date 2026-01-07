@@ -20,6 +20,7 @@ export const markets = pgTable("markets", {
   devWalletPct: text("dev_wallet_pct").notNull().default("0"),
   isFrozen: boolean("is_frozen").notNull().default(false),
   rugScale: integer("rug_scale").notNull().default(0),
+  volume24h: integer("volume_24h").notNull().default(0),
   wVotes: integer("w_votes").notNull().default(0),
   trashVotes: integer("trash_votes").notNull().default(0),
   chartData: jsonb("chart_data").notNull().default([]),

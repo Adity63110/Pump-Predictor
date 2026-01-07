@@ -43,6 +43,7 @@ async function fetchTokenData(ca: string) {
       symbol: pair.baseToken.symbol,
       imageUrl: pair.info?.imageUrl || "",
       marketCap: pair.fdv || 0,
+      volume24h: pair.volume?.h24 || 0,
       devWalletPct: (Math.random() * 5).toFixed(2),
       rugScore,
       bondingProgress,
@@ -90,6 +91,7 @@ export async function registerRoutes(
             ca: token.ca,
             imageUrl: token.imageUrl || "",
             marketCap: Math.floor(token.marketCap),
+            volume24h: Math.floor(token.volume24h || 0),
             launchTime: new Date().toISOString(),
             devWalletPct: token.devWalletPct,
             rugScale: token.rugScore,
@@ -101,6 +103,7 @@ export async function registerRoutes(
             symbol: token.symbol,
             imageUrl: token.imageUrl || "",
             marketCap: Math.floor(token.marketCap),
+            volume24h: Math.floor(token.volume24h || 0),
             devWalletPct: token.devWalletPct,
             rugScale: token.rugScore,
           }).where(eq(markets.ca, token.ca));
