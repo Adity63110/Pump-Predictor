@@ -240,7 +240,7 @@ export default function TokenRoom() {
                     </div>
                     <div className="p-4 rounded-lg bg-card border border-border">
                         <div className="text-xs text-muted-foreground mb-1">Vol (24h)</div>
-                        <div className="text-lg font-mono font-bold">${(token as any).volume24h ? ((token as any).volume24h / 1000).toFixed(1) + 'k' : 'N/A'}</div>
+                        <div className="text-lg font-mono font-bold">${(token as any).volume24h ? ((token as any).volume24h / 1000).toFixed(1) + 'k' : '0.0k'}</div>
                     </div>
                 </div>
             </div>

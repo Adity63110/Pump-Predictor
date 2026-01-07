@@ -43,7 +43,7 @@ async function fetchTokenData(ca: string) {
       symbol: pair.baseToken.symbol,
       imageUrl: pair.info?.imageUrl || "",
       marketCap: pair.fdv || 0,
-      volume24h: pair.volume?.h24 || 0,
+      volume24h: Math.floor(pair.volume?.h24 || 0),
       devWalletPct: (Math.random() * 5).toFixed(2),
       rugScore,
       bondingProgress,
