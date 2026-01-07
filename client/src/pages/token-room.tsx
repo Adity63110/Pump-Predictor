@@ -5,20 +5,15 @@ import { Button } from "@/components/ui/button";
 import { VotingBar } from "@/components/voting-bar";
 import { RugScale } from "@/components/rug-scale";
 import { ChatBox } from "@/components/chat-box";
-import { 
-  ArrowLeft, Copy, ExternalLink, ThumbsUp, ThumbsDown, AlertOctagon, Share2, Activity,
-  BrainCircuit, ShieldAlert, ShieldCheck
-} from "lucide-react";
+import { ArrowLeft, Copy, ExternalLink, ThumbsUp, ThumbsDown, AlertOctagon, Share2, Activity } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function TokenRoom() {
   const [, params] = useRoute("/room/:id");
   const [token, setToken] = useState<Token | null>(null);
   const [loading, setLoading] = useState(true);
   const [userVote, setUserVote] = useState<'w' | 'trash' | null>(null);
-  const [analysis, setAnalysis] = useState<any>(null);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -29,72 +24,31 @@ export default function TokenRoom() {
         .then(async res => {
           if (res.status === 404 && params.id?.length && params.id.length > 30) {
             // Likely a Solana CA, try to trigger analysis/creation
-            try {
-              // 1. Trigger AI analysis in background, but don't 'await' the result here
-              const analyseRes = await fetch("/api/ai/analyse", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ ca: params.id })
-              });
-              
-              const analysisData = await analyseRes.json();
-              
-              if (analyseRes.ok && analysisData) {
-                // Return basic token info immediately from analysisData
-                return analysisData;
-              } else {
-                throw new Error("Analysis failed to start");
-              }
-            } catch (err) {
-              console.error("Auto-analysis initiation error:", err);
-              // Fallback: try to find it on dexscreener directly for immediate display
-              const dexRes = await fetch(`https://api.dexscreener.com/latest/dex/tokens/${params.id}`);
-              const dexData = await dexRes.json();
-              const pair = dexData.pairs?.[0];
-              if (pair) {
-                return {
-                  id: params.id,
-                  name: pair.baseToken.name,
-                  symbol: pair.baseToken.symbol,
-                  ca: params.id,
-                  imageUrl: pair.info?.imageUrl || "",
-                  marketCap: Math.floor(pair.fdv || 0),
-                  launchTime: new Date().toISOString(),
-                  devWalletPct: "0",
-                  rugScale: 0,
-                  wVotes: 0,
-                  trashVotes: 0
-                };
-              }
-              throw new Error("Token not found");
+            const analyseRes = await fetch("/api/ai/analyse", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ ca: params.id })
+            });
+            if (analyseRes.ok) {
+              const analysis = await analyseRes.json();
+              // Re-fetch now that it's created
+              const marketRes = await fetch(`/api/markets/${analysis.roomId}`);
+              return marketRes.json();
             }
           }
-          
-          if (!res.ok) throw new Error("Not found");
-          return await res.json();
+          return res.json();
         })
         .then((t) => {
           setToken(t || null);
           setLoading(false);
           
-          // If analysis state is still 'processing' or null, we might need to poll or just wait
-          if (t && t.status === "processing") {
-             // In a more complex app we'd use polling or WS here
-             // For now, let's just show what we have
-          }
-
-          if (t && t.reasons) {
-            setAnalysis(t);
-          }
-
           // Check if user has already voted
           const savedVote = localStorage.getItem(`vote_${params.id}`);
           if (savedVote) {
             setUserVote(savedVote as 'w' | 'trash');
           }
         })
-        .catch((err) => {
-          console.error("Room load error:", err);
+        .catch(() => {
           setLoading(false);
         });
     }
@@ -276,54 +230,6 @@ export default function TokenRoom() {
         <div className="lg:col-span-4 space-y-6">
             <RugScale score={token.rugScale || 0} />
             
-            {analysis && (
-              <Card className="border-primary/20 bg-primary/5">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-bold flex items-center gap-2">
-                    <BrainCircuit className="h-4 w-4 text-primary" />
-                    AI Deep Analysis
-                  </CardTitle>
-                  <div className={cn(
-                    "px-2 py-0.5 rounded-full text-[10px] font-bold border",
-                    analysis.riskLevel === 'Low' ? 'bg-w-green/10 text-w-green border-w-green/20' : 
-                    analysis.riskLevel === 'Medium' ? 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20' : 
-                    'bg-trash-red/10 text-trash-red border-trash-red/20'
-                  )}>
-                    {analysis.riskLevel} RISK
-                  </div>
-                </CardHeader>
-                <CardContent className="pt-4">
-                  <p className="text-sm italic leading-relaxed text-foreground/90 mb-4">"{analysis.reasoning}"</p>
-                  
-                  <div className="grid grid-cols-2 gap-2 mb-4">
-                    <div className="p-2 rounded bg-background/50 border border-border/50">
-                      <p className="text-[9px] text-muted-foreground uppercase font-bold">Dev Share</p>
-                      <p className="text-sm font-bold text-primary">{analysis.devShare}</p>
-                    </div>
-                    <div className="p-2 rounded bg-background/50 border border-border/50">
-                      <p className="text-[9px] text-muted-foreground uppercase font-bold">Insiders</p>
-                      <p className="text-sm font-bold text-trash-red">{analysis.insiderClusterShare}</p>
-                    </div>
-                  </div>
-
-                  {analysis.redFlags && (
-                    <div className="space-y-1">
-                      <p className="text-[10px] font-bold uppercase text-muted-foreground flex items-center gap-1">
-                        <ShieldAlert className="w-3 h-3" /> Risk Signals
-                      </p>
-                      <div className="flex flex-wrap gap-1">
-                        {analysis.redFlags.map((flag: string, i: number) => (
-                          <span key={i} className="text-[9px] bg-muted px-1.5 py-0.5 rounded border border-border">
-                            {flag}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            )}
-
             <div className="space-y-4">
                 <div className="grid grid-cols-1 gap-4">
                     <div className="p-4 rounded-lg bg-card border border-border">

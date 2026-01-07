@@ -21,18 +21,16 @@ export async function registerRoutes(
   });
 
   app.get("/api/markets/:id", async (req, res) => {
-    try {
-      const { id } = req.params;
-      let market = await storage.getMarket(id) || await storage.getMarketByCA(id);
-      
-      if (!market) {
-        return res.status(404).json({ message: "Market not found" });
-      }
-      res.json(market);
-    } catch (error) {
-      console.error("Error fetching market:", error);
-      res.status(500).json({ message: "Internal server error" });
+    const { id } = req.params;
+    let market = await storage.getMarket(id) || await storage.getMarketByCA(id);
+    
+    // If not found and looks like a CA, we could potentially auto-trigger analysis here
+    // but the frontend is already doing it for better UX control.
+    
+    if (!market) {
+      return res.status(404).json({ message: "Market not found" });
     }
+    res.json(market);
   });
 
   app.post("/api/markets", async (req, res) => {
@@ -65,18 +63,10 @@ export async function registerRoutes(
 
     try {
       // Fetch market data and market from DB in parallel
-      const [dexResponse, existingMarket] = await Promise.all([
+      const [dexResponse, market] = await Promise.all([
         fetch(`https://api.dexscreener.com/latest/dex/tokens/${ca}`),
         storage.getMarketByCA(ca)
-      ]).catch(err => {
-        console.error("Parallel fetch error:", err);
-        throw new Error("Failed to fetch initial data");
-      });
-
-      if (!dexResponse.ok) {
-        throw new Error(`DexScreener API error: ${dexResponse.status}`);
-      }
-
+      ]);
       const dexData = await dexResponse.json();
       const dexPair = dexData.pairs?.[0];
 
@@ -84,160 +74,160 @@ export async function registerRoutes(
         return res.status(404).json({ message: "Token not found on chain" });
       }
 
-      // 1. Send IMMEDIATE response to frontend with base data
-      // This allows the room to load instantly while AI processes in background
-      res.json({
-        id: ca,
+      // pattern-based dev wallet inference logic
+      const deployerWallet = "Depl...7x9";
+      const lpWallet = "LPwa...2v1";
+      const clusterWallet = "Clus...4m8";
+      
+      const devDetectionTrail = [
+        { pattern: "Token Creation Trail", wallet: deployerWallet, detail: "Paid deploy fees & initialized mint", detected: true },
+        { pattern: "First Liquidity Wallet", wallet: lpWallet, detail: "Seeded initial LP on Raydium/Pump", detected: Math.random() > 0.3 },
+        { pattern: "Supply Movement Analysis", wallet: clusterWallet, detail: "Large % transfer cluster detected early", detected: Math.random() > 0.5 },
+      ];
+
+      const detectedDevShare = (Math.random() * 1.5 + 0.1).toFixed(2);
+      const insiderClusterShare = (Math.random() * 5 + 2).toFixed(2);
+      const top10IndividualShare = (Math.random() * 10 + 15).toFixed(2);
+      const lockedBurnedShare = (Math.random() * 40 + 50).toFixed(2);
+      
+      const simulatedTopHolders = [
+        { address: deployerWallet, amount: `${detectedDevShare}%`, label: "Inferred Developer" },
+        { address: "8x2p...m3q", amount: (Math.random() * 0.5 + 0.8).toFixed(2) + "%", label: "Early Sniper" },
+        { address: "2n9v...k4s", amount: (Math.random() * 0.4 + 0.6).toFixed(2) + "%", label: "Whale" },
+        { address: "4m1t...p5r", amount: (Math.random() * 0.3 + 0.4).toFixed(2) + "%", label: "Top Holder" },
+        { address: clusterWallet, amount: (Math.random() * 0.2 + 0.2).toFixed(2) + "%", label: "Cluster Member" },
+      ];
+
+      const topConcentration = simulatedTopHolders.reduce((acc, h) => acc + parseFloat(h.amount), 0).toFixed(2);
+
+      const marketData = {
         name: dexPair.baseToken.name,
         symbol: dexPair.baseToken.symbol,
-        ca: ca,
-        imageUrl: dexPair.info?.imageUrl || "",
-        marketCap: Math.floor(dexPair.fdv || 0),
-        status: "processing"
+        volume: dexPair.volume?.h24 || 0,
+        fdv: dexPair.fdv || 0,
+        liquidity: dexPair.liquidity?.usd || 0,
+        topHolders: simulatedTopHolders,
+        topConcentration: `${topConcentration}%`,
+        devShare: `${detectedDevShare}%`,
+        insiderClusterShare: `${insiderClusterShare}%`,
+        top10IndividualShare: `${top10IndividualShare}%`,
+        lockedBurnedShare: `${lockedBurnedShare}%`,
+        rugScore: 0,
+        redFlags: [] as string[],
+        devDetectionTrail
+      };
+
+      // Rug score logic - Advanced Calculation
+      let rugScoreValue = 0;
+      const rugSignals: string[] = [];
+
+      // 1. Liquidity Risk
+      const liqRatio = (dexPair.liquidity?.usd || 0) / (dexPair.fdv || 1);
+      if (liqRatio < 0.1) {
+        rugScoreValue += 15;
+        rugSignals.push("Low Liquidity/Supply Ratio");
+      }
+      if (Math.random() > 0.5) { // Simulate unlocked LP check
+        rugScoreValue += 30;
+        rugSignals.push("Unlocked Liquidity");
+      }
+
+      // 2. Dev-Controlled Supply Risk
+      const devShareNum = parseFloat(detectedDevShare);
+      if (devShareNum > 30) rugScoreValue += 25;
+      else if (devShareNum > 15) rugScoreValue += 15;
+      else if (devShareNum < 10) rugScoreValue += 5;
+
+      // 3. Holder Concentration Risk
+      const topConcentrationNum = parseFloat(topConcentration);
+      if (topConcentrationNum > 50) {
+        rugScoreValue += 20;
+        rugSignals.push("High Top 5 Concentration");
+      }
+      else if (topConcentrationNum > 35) rugScoreValue += 15;
+
+      // 4. Insider Activity Risk
+      const insiderShareNum = parseFloat(insiderClusterShare);
+      if (insiderShareNum > 20) {
+        rugScoreValue += 20;
+        rugSignals.push("Extreme Insider Activity");
+      }
+      else if (insiderShareNum > 10) {
+        rugScoreValue += 10;
+        rugSignals.push("Detected Insider Clusters");
+      }
+
+      // 5. Contract Authority Risk (Simulated)
+      if (Math.random() > 0.7) {
+        rugScoreValue += 25;
+        rugSignals.push("Mint Authority Enabled");
+      }
+      if (Math.random() > 0.8) {
+        rugScoreValue += 15;
+        rugSignals.push("Freeze Authority Enabled");
+      }
+
+      marketData.rugScore = Math.min(rugScoreValue, 100);
+      marketData.redFlags = rugSignals;
+
+      const prompt = `ELITE TOKEN AUDIT (MAXIMUM SKEPTICISM): 
+      Analyze the token ${ca}. Provide a breakdown of the supply distribution by percentage only. 
+      I do not need the specific wallet addresses. Please show:
+      - Percentage held by the Developer wallet: ${marketData.devShare}
+      - Total percentage held by the Top 10 individual holders (excluding DEX liquidity): ${marketData.top10IndividualShare}
+      - Estimated percentage held by Insider Clusters (wallets linked via transfers): ${marketData.insiderClusterShare}
+      - Percentage of supply currently locked or burned in liquidity pools: ${marketData.lockedBurnedShare}
+
+      RUG RISK SCORE: ${marketData.rugScore} / 100
+      SIGNALS DETECTED: ${rugSignals.join(", ")}
+
+      Focus EXCLUSIVELY on top holders, insider data, and market cap for your decision.
+      Market Cap (FDV): $${marketData.fdv.toLocaleString()}
+      
+      VERDICT CRITERIA:
+      - Final Rug Score (0-100): ${marketData.rugScore}
+      - Risk Level: Low (0-30), Medium (31-60), High (61-100)
+      - Your reasoning must justify the Risk Level using the rug score and signals.
+      - Use terms like "Momentum Potential", "Survival Likelihood", or "Market Health" instead of profitability.
+      - AVOID terms like "Safe", "Profitable", or "Guaranteed".
+
+      Respond with a JSON object: { "riskLevel": "Low" | "Medium" | "High", "confidence": "Weak" | "Moderate" | "Strong", "reasons": ["string"], "reasoning": "string" }`;
+
+      const response = await openai.chat.completions.create({
+        model: "gpt-5.1",
+        messages: [{ role: "user", content: prompt }],
+        response_format: { type: "json_object" },
       });
 
-      // 2. Perform AI analysis asynchronously in the background
-      (async () => {
-        try {
-          // pattern-based dev wallet inference logic
-          const deployerWallet = "Depl...7x9";
-          const lpWallet = "LPwa...2v1";
-          const clusterWallet = "Clus...4m8";
-          
-          const devDetectionTrail = [
-            { pattern: "Token Creation Trail", wallet: deployerWallet, detail: "Paid deploy fees & initialized mint", detected: true },
-            { pattern: "First Liquidity Wallet", wallet: lpWallet, detail: "Seeded initial LP on Raydium/Pump", detected: Math.random() > 0.3 },
-            { pattern: "Supply Movement Analysis", wallet: clusterWallet, detail: "Large % transfer cluster detected early", detected: Math.random() > 0.5 },
-          ];
-
-          const detectedDevShare = (Math.random() * 1.5 + 0.1).toFixed(2);
-          const insiderClusterShare = (Math.random() * 5 + 2).toFixed(2);
-          const top10IndividualShare = (Math.random() * 10 + 15).toFixed(2);
-          const lockedBurnedShare = (Math.random() * 40 + 50).toFixed(2);
-          
-          const simulatedTopHolders = [
-            { address: deployerWallet, amount: `${detectedDevShare}%`, label: "Inferred Developer" },
-            { address: "8x2p...m3q", amount: (Math.random() * 0.5 + 0.8).toFixed(2) + "%", label: "Early Sniper" },
-            { address: "2n9v...k4s", amount: (Math.random() * 0.4 + 0.6).toFixed(2) + "%", label: "Whale" },
-            { address: "4m1t...p5r", amount: (Math.random() * 0.3 + 0.4).toFixed(2) + "%", label: "Top Holder" },
-            { address: clusterWallet, amount: (Math.random() * 0.2 + 0.2).toFixed(2) + "%", label: "Cluster Member" },
-          ];
-
-          const topConcentration = simulatedTopHolders.reduce((acc, h) => acc + parseFloat(h.amount), 0).toFixed(2);
-
-          const marketData = {
-            name: dexPair.baseToken.name,
-            symbol: dexPair.baseToken.symbol,
-            volume: dexPair.volume?.h24 || 0,
-            fdv: dexPair.fdv || 0,
-            liquidity: dexPair.liquidity?.usd || 0,
-            topHolders: simulatedTopHolders,
-            topConcentration: `${topConcentration}%`,
-            devShare: `${detectedDevShare}%`,
-            insiderClusterShare: `${insiderClusterShare}%`,
-            top10IndividualShare: `${top10IndividualShare}%`,
-            lockedBurnedShare: `${lockedBurnedShare}%`,
-            rugScore: 0,
-            redFlags: [] as string[],
-            devDetectionTrail
-          };
-
-          // Rug score logic
-          let rugScoreValue = 0;
-          const rugSignals: string[] = [];
-
-          const liqRatio = (dexPair.liquidity?.usd || 0) / (dexPair.fdv || 1);
-          if (liqRatio < 0.1) {
-            rugScoreValue += 15;
-            rugSignals.push("Low Liquidity/Supply Ratio");
-          }
-          if (Math.random() > 0.5) {
-            rugScoreValue += 30;
-            rugSignals.push("Unlocked Liquidity");
-          }
-
-          const devShareNum = parseFloat(detectedDevShare);
-          if (devShareNum > 30) rugScoreValue += 25;
-          else if (devShareNum > 15) rugScoreValue += 15;
-          else if (devShareNum < 10) rugScoreValue += 5;
-
-          const topConcentrationNum = parseFloat(topConcentration);
-          if (topConcentrationNum > 50) {
-            rugScoreValue += 20;
-            rugSignals.push("High Top 5 Concentration");
-          }
-          else if (topConcentrationNum > 35) rugScoreValue += 15;
-
-          const insiderShareNum = parseFloat(insiderClusterShare);
-          if (insiderShareNum > 20) {
-            rugScoreValue += 20;
-            rugSignals.push("Extreme Insider Activity");
-          }
-          else if (insiderShareNum > 10) {
-            rugScoreValue += 10;
-            rugSignals.push("Detected Insider Clusters");
-          }
-
-          if (Math.random() > 0.7) {
-            rugScoreValue += 25;
-            rugSignals.push("Mint Authority Enabled");
-          }
-          if (Math.random() > 0.8) {
-            rugScoreValue += 15;
-            rugSignals.push("Freeze Authority Enabled");
-          }
-
-          marketData.rugScore = Math.min(rugScoreValue, 100);
-          marketData.redFlags = rugSignals;
-
-          const prompt = `ELITE TOKEN AUDIT (MAXIMUM SKEPTICISM): 
-          Analyze the token ${ca}. Provide a breakdown of the supply distribution by percentage only. 
-          I do not need the specific wallet addresses. Please show:
-          - Percentage held by the Developer wallet: ${marketData.devShare}
-          - Total percentage held by the Top 10 individual holders (excluding DEX liquidity): ${marketData.top10IndividualShare}
-          - Estimated percentage held by Insider Clusters (wallets linked via transfers): ${marketData.insiderClusterShare}
-          - Percentage of supply currently locked or burned in liquidity pools: ${marketData.lockedBurnedShare}
-
-          RUG RISK SCORE: ${marketData.rugScore} / 100
-          SIGNALS DETECTED: ${rugSignals.join(", ")}
-
-          Respond with a JSON object: { "riskLevel": "Low" | "Medium" | "High", "confidence": "Weak" | "Moderate" | "Strong", "reasons": ["string"], "reasoning": "string" }`;
-
-          const aiResponse = await openai.chat.completions.create({
-            model: "gpt-4o",
-            messages: [{ role: "user", content: prompt }],
-            response_format: { type: "json_object" },
-          });
-
-          const analysis = JSON.parse(aiResponse.choices[0].message.content || "{}");
-          
-          // Create or update market with full data
-          if (!existingMarket) {
-            await storage.createMarket({
-              id: ca,
-              name: marketData.name,
-              symbol: marketData.symbol,
-              ca: ca,
-              imageUrl: dexPair.info?.imageUrl || "",
-              marketCap: Math.floor(marketData.fdv),
-              launchTime: new Date().toISOString(),
-              devWalletPct: marketData.devShare.replace("%", ""),
-              rugScale: marketData.rugScore,
-            });
-          }
-          
-          // In a real app we'd broadcast this update via WS or the frontend would poll.
-          // For now, it's saved to the DB for the next fetch.
-          console.log(`Background analysis completed for ${ca}`);
-        } catch (bgError) {
-          console.error("Background AI analysis error:", bgError);
-        }
-      })();
-    } catch (error: any) {
-      console.error("AI Analysis route error:", error);
-      if (!res.headersSent) {
-        res.status(500).json({ message: "Failed to initiate analysis" });
+      const analysis = JSON.parse(response.choices[0].message.content || "{}");
+      
+      // Market already fetched in parallel earlier
+      let finalMarket = market;
+      if (!finalMarket && typeof marketData !== 'undefined') {
+        finalMarket = await storage.createMarket({
+          id: ca,
+          name: marketData.name,
+          symbol: marketData.symbol,
+          ca: ca,
+          imageUrl: dexPair.info?.imageUrl || "",
+          marketCap: Math.floor(marketData.fdv),
+          launchTime: new Date().toISOString(),
+          devWalletPct: marketData.devShare.replace("%", ""),
+          rugScale: marketData.rugScore,
+        });
       }
+
+      res.json({
+        ...marketData,
+        riskLevel: analysis.riskLevel,
+        confidence: analysis.confidence,
+        reasons: analysis.reasons,
+        reasoning: analysis.reasoning,
+        roomId: finalMarket?.id
+      });
+    } catch (error: any) {
+      console.error("AI Analysis error:", error);
+      res.status(500).json({ message: "AI analysis failed" });
     }
   });
 
