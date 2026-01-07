@@ -377,7 +377,8 @@ export async function registerRoutes(
         // Also add to Supabase trending_tokens if configured
         if (supabase) {
           try {
-            await Promise.all([
+            console.log(`[Supabase] Syncing token ${ca} to trending_tokens and rooms`);
+            const results = await Promise.allSettled([
               supabase.from("trending_tokens").upsert([{ ca: ca }], { onConflict: 'ca' }),
               supabase.from("rooms").upsert([{ 
                 id: ca,
@@ -389,8 +390,18 @@ export async function registerRoutes(
                 risk_level: analysis.riskLevel
               }], { onConflict: 'id' })
             ]);
+            
+            results.forEach((res, idx) => {
+              if (res.status === 'rejected') {
+                console.error(`[Supabase] Table ${idx === 0 ? 'trending_tokens' : 'rooms'} sync failed:`, res.reason);
+              } else if (res.value.error) {
+                console.error(`[Supabase] Table ${idx === 0 ? 'trending_tokens' : 'rooms'} sync error:`, res.value.error);
+              } else {
+                console.log(`[Supabase] Table ${idx === 0 ? 'trending_tokens' : 'rooms'} sync success`);
+              }
+            });
           } catch (err) {
-            console.error("Supabase upsert error:", err);
+            console.error("[Supabase] Fatal sync error:", err);
           }
         }
       }
