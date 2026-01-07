@@ -251,7 +251,7 @@ export async function registerRoutes(
       const marketData = {
         name: dexPair.baseToken.name,
         symbol: dexPair.baseToken.symbol,
-        volume: dexPair.volume?.h24 || 0,
+        volume24h: dexPair.volume?.h24 || 0,
         fdv: dexPair.fdv || 0,
         liquidity: dexPair.liquidity?.usd || 0,
         topHolders: simulatedTopHolders,
@@ -368,6 +368,7 @@ export async function registerRoutes(
           ca: ca,
           imageUrl: dexPair.info?.imageUrl || "",
           marketCap: Math.floor(marketData.fdv),
+          volume24h: Math.floor(marketData.volume24h || 0),
           launchTime: new Date().toISOString(),
           devWalletPct: marketData.devShare.replace("%", ""),
           rugScale: marketData.rugScore,
