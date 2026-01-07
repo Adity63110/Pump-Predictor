@@ -1,14 +1,40 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { Link } from "wouter";
-import { TrendingUp, AlertTriangle, Activity, BrainCircuit, ShieldCheck, Zap } from "lucide-react";
+import { TrendingUp, AlertTriangle, Activity, BrainCircuit, ShieldCheck, Zap, Plus } from "lucide-react";
 import { VotingBar } from "@/components/voting-bar";
 import { cn } from "@/lib/utils";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { useState } from "react";
+import { apiRequest, queryClient } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 
 export default function PumpList() {
+  const [newCa, setNewCa] = useState("");
+  const { toast } = useToast();
   const { data: tokens, isLoading } = useQuery<any[]>({
     queryKey: ["/api/pumplist"],
+  });
+
+  const addTokenMutation = useMutation({
+    mutationFn: async (ca: string) => {
+      const res = await apiRequest("POST", "/api/trending/tokens", { ca });
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/pumplist"] });
+      setNewCa("");
+      toast({ title: "Success", description: "Token added to trending list" });
+    },
+    onError: (error: any) => {
+      toast({ 
+        title: "Error", 
+        description: error.message || "Failed to add token", 
+        variant: "destructive" 
+      });
+    }
   });
 
   return (
@@ -23,12 +49,37 @@ export default function PumpList() {
         </div>
 
         <h1 className="text-4xl sm:text-6xl font-black tracking-tight mb-4 uppercase">
-          🔥 Curated PumpList
+          🔥 Trending Tokens
         </h1>
         
         <p className="text-lg text-muted-foreground max-w-2xl mb-8 font-medium italic">
           Selected manually, analyzed on-chain in real-time.
         </p>
+
+        {/* Management Input */}
+        <div className="w-full max-w-md mb-12 p-4 bg-card border border-border rounded-xl shadow-lg animate-in slide-in-from-bottom-4 duration-500">
+          <div className="flex flex-col gap-4">
+            <div className="text-sm font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
+              <Plus className="w-4 h-4" /> Add Trending Token
+            </div>
+            <div className="flex gap-2">
+              <Input 
+                placeholder="Enter Contract Address (CA)..." 
+                value={newCa}
+                onChange={(e) => setNewCa(e.target.value)}
+                className="font-mono text-sm"
+                data-testid="input-trending-ca"
+              />
+              <Button 
+                onClick={() => addTokenMutation.mutate(newCa)}
+                disabled={!newCa || addTokenMutation.isPending}
+                data-testid="button-add-trending"
+              >
+                {addTokenMutation.isPending ? "Adding..." : "Add"}
+              </Button>
+            </div>
+          </div>
+        </div>
 
         <div className="p-4 bg-yellow-500/5 border border-yellow-500/20 rounded-lg text-xs text-yellow-500/80 font-mono uppercase tracking-widest flex items-center gap-3">
           <Activity className="w-4 h-4" />

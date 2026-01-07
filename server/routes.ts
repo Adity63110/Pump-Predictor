@@ -63,19 +63,36 @@ export async function registerRoutes(
       // Fetch curated tokens from Supabase table 'trending_tokens'
       const { data: trendingRows, error } = await supabase
         .from("trending_tokens")
-        .select("ca");
+        .select("ca")
+        .order('created_at', { ascending: false });
 
       const tokensToFetch = (trendingRows && trendingRows.length > 0) 
         ? trendingRows.map(row => row.ca)
-        : TRENDING_TOKENS; // Fallback to hardcoded if table is empty
+        : TRENDING_TOKENS; 
 
       const tokens = await Promise.all(tokensToFetch.map(ca => fetchTokenData(ca)));
       res.json(tokens.filter(t => t !== null));
     } catch (error) {
       console.error("Supabase fetch error:", error);
-      // Fallback to hardcoded list on error
       const tokens = await Promise.all(TRENDING_TOKENS.map(ca => fetchTokenData(ca)));
       res.json(tokens.filter(t => t !== null));
+    }
+  });
+
+  app.post("/api/trending/tokens", async (req, res) => {
+    const { ca } = req.body;
+    if (!ca) return res.status(400).json({ message: "CA is required" });
+
+    try {
+      const { data, error } = await supabase
+        .from("trending_tokens")
+        .insert([{ ca }]);
+
+      if (error) throw error;
+      res.json({ success: true, data });
+    } catch (error: any) {
+      console.error("Supabase insert error:", error);
+      res.status(500).json({ message: error.message || "Failed to add token" });
     }
   });
 
