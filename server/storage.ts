@@ -43,12 +43,16 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getMarket(id: string): Promise<Market | undefined> {
-    const [market] = await db.select().from(markets).where(eq(markets.id, id));
+    const [market] = await db.select().from(markets).where(
+      sql`LOWER(${markets.id}) = LOWER(${id}) OR LOWER(${markets.ca}) = LOWER(${id})`
+    );
     return market;
   }
 
   async getMarketByCA(ca: string): Promise<Market | undefined> {
-    const [market] = await db.select().from(markets).where(eq(markets.ca, ca));
+    const [market] = await db.select().from(markets).where(
+      sql`LOWER(${markets.ca}) = LOWER(${ca})`
+    );
     return market;
   }
 
