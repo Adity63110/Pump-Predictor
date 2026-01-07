@@ -30,36 +30,46 @@ export default function TokenRoom() {
           if (res.status === 404 && params.id?.length && params.id.length > 30) {
             // Likely a Solana CA, try to trigger analysis/creation
             try {
-              const analyseRes = await fetch("/api/ai/analyse", {
+              // We'll fetch analysis in background to show token info faster
+              fetch("/api/ai/analyse", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ ca: params.id })
-              });
-              
-              const analysisData = await analyseRes.json();
-              
-              if (analyseRes.ok && analysisData.roomId) {
-                setAnalysis(analysisData);
-                // Re-fetch now that it's created
-                const marketRes = await fetch(`/api/markets/${analysisData.roomId}`);
-                return marketRes.json();
-              } else {
-                console.error("Analysis failed:", analysisData);
-                return { message: analysisData.message || "Analysis failed" };
+              })
+              .then(res => res.json())
+              .then(data => {
+                setAnalysis(data);
+                // After creation, we might want to refresh token if it was just created
+                fetch(`/api/markets/${data.roomId}`).then(r => r.json()).then(setToken);
+              })
+              .catch(console.error);
+
+              // Try to find it on dexscreener directly for immediate display
+              const dexRes = await fetch(`https://api.dexscreener.com/latest/dex/tokens/${params.id}`);
+              const dexData = await dexRes.json();
+              const pair = dexData.pairs?.[0];
+              if (pair) {
+                return {
+                  id: params.id,
+                  name: pair.baseToken.name,
+                  symbol: pair.baseToken.symbol,
+                  ca: params.id,
+                  imageUrl: pair.info?.imageUrl || "",
+                  marketCap: Math.floor(pair.fdv || 0),
+                  launchTime: new Date().toISOString(),
+                  devWalletPct: "0",
+                  rugScale: 0,
+                  wVotes: 0,
+                  trashVotes: 0
+                };
               }
             } catch (err) {
-              console.error("Auto-analysis error:", err);
-              return { message: "Auto-analysis error" };
+              console.error("Immediate fetch error:", err);
             }
           }
           
-          // For non-404 or short IDs, handle normally
-          try {
-            return await res.json();
-          } catch (e) {
-            console.error("JSON parse error:", e);
-            return null;
-          }
+          if (!res.ok) throw new Error("Not found");
+          return await res.json();
         })
         .then((t) => {
           setToken(t || null);
@@ -71,7 +81,7 @@ export default function TokenRoom() {
             setUserVote(savedVote as 'w' | 'trash');
           }
 
-          // If we already have a token but no analysis yet, fetch it
+          // If we have a token but no analysis yet, fetch it in background
           if (t && t.ca && !analysis) {
             fetch("/api/ai/analyse", {
               method: "POST",
