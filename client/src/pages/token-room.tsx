@@ -154,7 +154,7 @@ export default function TokenRoom() {
             </div>
             
             <div className="flex gap-2">
-               <Link href="/ai-analyser">
+               <Link href={`/ai-analyser?ca=${token.ca}`}>
                  <Button variant="outline" size="sm" className="gap-2 border-primary/30 text-primary hover:bg-primary/5">
                    <BrainCircuit className="w-4 h-4" /> AI Audit
                  </Button>

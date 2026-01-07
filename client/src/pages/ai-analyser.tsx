@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useLocation } from "wouter";
+import { useState, useEffect } from "react";
+import { useLocation, useSearch } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -10,7 +10,11 @@ import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 
 export default function AIAnalyser() {
-  const [ca, setCa] = useState("");
+  const searchString = useSearch();
+  const params = new URLSearchParams(searchString);
+  const initialCa = params.get("ca") || "";
+  
+  const [ca, setCa] = useState(initialCa);
   const [, setLocation] = useLocation();
   const { toast } = useToast();
 
@@ -27,6 +31,12 @@ export default function AIAnalyser() {
       });
     },
   });
+
+  useEffect(() => {
+    if (initialCa) {
+      mutation.mutate(initialCa);
+    }
+  }, []);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
