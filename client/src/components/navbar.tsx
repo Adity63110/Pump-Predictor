@@ -8,7 +8,7 @@ export function Navbar() {
 
   const navItems = [
     { href: "/", label: "Home", icon: Home },
-    { href: "/pumplist", label: "Markets", icon: TrendingUp },
+    { href: "/pumplist", label: "Trending", icon: TrendingUp },
     { href: "/ai-analyser", label: "AI Analyser", icon: BrainCircuit },
     { href: "/docs", label: "Docs", icon: FileText },
   ];
