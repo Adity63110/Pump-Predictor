@@ -27,16 +27,16 @@ export function Navbar() {
         </div>
 
         {/* Tabs - Center */}
-        <div className="hidden md:flex items-center justify-center gap-6 flex-1">
+        <div className="hidden md:flex items-center justify-center gap-10 flex-1 px-4">
           {navItems.map((item) => (
             <Link key={item.href} href={item.href}>
               <span
-                className={`relative flex items-center gap-2 text-sm font-bold transition-all hover:text-[#54d292] hover:drop-shadow-[0_0_8px_rgba(84,210,146,0.5)] cursor-pointer group ${
+                className={`relative flex items-center gap-2 text-sm font-bold transition-all hover:text-[#54d292] hover:drop-shadow-[0_0_8px_rgba(84,210,146,0.5)] cursor-pointer group whitespace-nowrap ${
                   location === item.href ? "text-[#54d292]" : "text-zinc-400"
                 }`}
                 data-testid={`link-nav-${item.label.toLowerCase().replace(" ", "-")}`}
               >
-                <item.icon className="h-4 w-4" />
+                <item.icon className="h-4 w-4 flex-shrink-0" />
                 {item.label}
                 <span className={`absolute -bottom-[22px] left-0 w-0 h-0.5 bg-[#54d292] transition-all duration-300 group-hover:w-full ${location === item.href ? "w-full" : ""}`} />
               </span>
