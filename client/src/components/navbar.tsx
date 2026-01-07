@@ -17,7 +17,7 @@ export function Navbar() {
         <div className="flex items-center gap-8">
           <Link href="/">
             <span className="flex items-center space-x-2 cursor-pointer">
-              <span className="text-xl font-bold tracking-tight text-primary">PumpVote</span>
+              <span className="text-xl font-bold tracking-tight text-primary">VerdictX</span>
             </span>
           </Link>
           <div className="hidden md:flex items-center gap-6">

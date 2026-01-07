@@ -45,7 +45,7 @@ export default function Home() {
         
         <p className="text-xl text-muted-foreground max-w-2xl mb-12 font-light">
           The public verdict layer for Pump.fun. No fake certainty. <br className="hidden sm:block"/>
-          Only raw crowd signals and on-chain data.
+          Only raw crowd signals and on-chain data with VerdictX.
         </p>
 
         {/* Main Input */}
