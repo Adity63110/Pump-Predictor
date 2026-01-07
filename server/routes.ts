@@ -373,6 +373,15 @@ export async function registerRoutes(
           devWalletPct: marketData.devShare.replace("%", ""),
           rugScale: marketData.rugScore,
         });
+
+        // Also add to Supabase trending_tokens if configured
+        if (supabase) {
+          try {
+            await supabase.from("trending_tokens").upsert([{ ca: ca }], { onConflict: 'ca' });
+          } catch (err) {
+            console.error("Supabase upsert error:", err);
+          }
+        }
       }
 
       res.json({
