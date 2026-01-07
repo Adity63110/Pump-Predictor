@@ -57,8 +57,11 @@ export async function registerRoutes(
     if (!ca) return res.status(400).json({ message: "CA is required" });
 
     try {
-      // Simulate/Fetch market data
-      const dexResponse = await fetch(`https://api.dexscreener.com/latest/dex/tokens/${ca}`);
+      // Fetch market data and market from DB in parallel
+      const [dexResponse, market] = await Promise.all([
+        fetch(`https://api.dexscreener.com/latest/dex/tokens/${ca}`),
+        storage.getMarketByCA(ca)
+      ]);
       const dexData = await dexResponse.json();
       const dexPair = dexData.pairs?.[0];
 
@@ -193,10 +196,10 @@ export async function registerRoutes(
 
       const analysis = JSON.parse(response.choices[0].message.content || "{}");
       
-      // Ensure market exists in DB
-      let market = await storage.getMarketByCA(ca);
-      if (!market) {
-        market = await storage.createMarket({
+      // Market already fetched in parallel earlier
+      let finalMarket = market;
+      if (!finalMarket) {
+        finalMarket = await storage.createMarket({
           id: ca,
           name: marketData.name,
           symbol: marketData.symbol,

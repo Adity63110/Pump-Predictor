@@ -122,7 +122,7 @@ export default function TokenRoom() {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-center gap-4">
               <div className="w-16 h-16 rounded-full bg-secondary flex items-center justify-center text-2xl font-bold ring-2 ring-border">
-                {token.imageUrl ? <img src={token.imageUrl} className="w-full h-full rounded-full object-cover" /> : token.symbol[0]}
+                {token.imageUrl ? <img src={token.imageUrl} className="w-full h-full rounded-full object-cover" /> : (token.symbol ? token.symbol[0] : "?")}
               </div>
               <div>
                 <h1 className="text-3xl font-extrabold tracking-tight flex items-center gap-2">
