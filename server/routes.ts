@@ -68,7 +68,10 @@ export async function registerRoutes(
       const [dexResponse, market] = await Promise.all([
         fetch(`https://api.dexscreener.com/latest/dex/tokens/${ca}`),
         storage.getMarketByCA(ca)
-      ]);
+      ]).catch(err => {
+        console.error("Parallel fetch error:", err);
+        throw new Error("Failed to fetch initial data");
+      });
 
       if (!dexResponse.ok) {
         throw new Error(`DexScreener API error: ${dexResponse.status}`);
