@@ -10,11 +10,53 @@ const openai = new OpenAI({
   baseURL: process.env.AI_INTEGRATIONS_OPENAI_BASE_URL,
 });
 
+// Authoritative curated list for PumpList
+const TRENDING_TOKENS = [
+  "6p6444v7jtSLa6usr69567mWWcb99F2HruPwnf8Tpump", // Fartcoin
+  "ukHH6c7mRmkqUn46Hm8hpMcHCXcS3HsyzV99Y9Jpump", // GOAT
+  "34on63B36pG64zFpA9mWWcb99F2HruPwnf8Tpump", // Example
+];
+
+async function fetchTokenData(ca: string) {
+  try {
+    const response = await fetch(`https://api.dexscreener.com/latest/dex/tokens/${ca}`);
+    const data = await response.json();
+    const pair = data.pairs?.[0];
+    if (!pair) return null;
+
+    // Simulate on-chain analytics for Curated list
+    const rugScore = Math.floor(Math.random() * 40); // Curated tokens usually lower risk
+    const bondingProgress = Math.floor(Math.random() * 30 + 70); // Usually late stage if trending
+    
+    return {
+      id: ca,
+      ca: ca,
+      name: pair.baseToken.name,
+      symbol: pair.baseToken.symbol,
+      imageUrl: pair.info?.imageUrl || "",
+      marketCap: pair.fdv || 0,
+      devWalletPct: (Math.random() * 5).toFixed(2),
+      rugScore,
+      bondingProgress,
+      riskLevel: rugScore < 20 ? 'Low' : 'Medium',
+      wVotes: Math.floor(Math.random() * 500 + 100),
+      trashVotes: Math.floor(Math.random() * 50)
+    };
+  } catch (error) {
+    return null;
+  }
+}
+
 export async function registerRoutes(
   httpServer: Server,
   app: Express
 ): Promise<Server> {
   
+  app.get("/api/pumplist", async (_req, res) => {
+    const tokens = await Promise.all(TRENDING_TOKENS.map(ca => fetchTokenData(ca)));
+    res.json(tokens.filter(t => t !== null));
+  });
+
   app.get("/api/markets/trending", async (_req, res) => {
     const markets = await storage.getTrendingMarkets();
     res.json(markets);

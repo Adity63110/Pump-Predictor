@@ -7,6 +7,7 @@ import NotFound from "@/pages/not-found";
 import Home from "@/pages/home";
 import TokenRoom from "@/pages/token-room";
 import AIAnalyser from "@/pages/ai-analyser";
+import PumpList from "@/pages/pumplist";
 import { Navbar } from "@/components/navbar";
 
 function Router() {
@@ -15,6 +16,7 @@ function Router() {
       <Route path="/" component={Home}/>
       <Route path="/room/:id" component={TokenRoom}/>
       <Route path="/ai-analyser" component={AIAnalyser} />
+      <Route path="/pumplist" component={PumpList} />
       <Route path="/markets" component={Home} />
       <Route component={NotFound} />
     </Switch>
