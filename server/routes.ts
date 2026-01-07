@@ -3,6 +3,12 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertMarketSchema, insertVoteSchema, insertMessageSchema } from "@shared/schema";
 import { OpenAI } from "openai";
+import { createClient } from "@supabase/supabase-js";
+
+// Initialize Supabase client
+const supabaseUrl = process.env.SUPABASE_URL || "";
+const supabaseAnonKey = process.env.SUPABASE_ANON_KEY || "";
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 // Using Replit AI Integrations for OpenAI access
 const openai = new OpenAI({
@@ -53,8 +59,24 @@ export async function registerRoutes(
 ): Promise<Server> {
   
   app.get("/api/pumplist", async (_req, res) => {
-    const tokens = await Promise.all(TRENDING_TOKENS.map(ca => fetchTokenData(ca)));
-    res.json(tokens.filter(t => t !== null));
+    try {
+      // Fetch curated tokens from Supabase table 'trending_tokens'
+      const { data: trendingRows, error } = await supabase
+        .from("trending_tokens")
+        .select("ca");
+
+      const tokensToFetch = (trendingRows && trendingRows.length > 0) 
+        ? trendingRows.map(row => row.ca)
+        : TRENDING_TOKENS; // Fallback to hardcoded if table is empty
+
+      const tokens = await Promise.all(tokensToFetch.map(ca => fetchTokenData(ca)));
+      res.json(tokens.filter(t => t !== null));
+    } catch (error) {
+      console.error("Supabase fetch error:", error);
+      // Fallback to hardcoded list on error
+      const tokens = await Promise.all(TRENDING_TOKENS.map(ca => fetchTokenData(ca)));
+      res.json(tokens.filter(t => t !== null));
+    }
   });
 
   app.get("/api/markets/trending", async (_req, res) => {
