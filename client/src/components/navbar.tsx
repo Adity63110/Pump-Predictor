@@ -1,5 +1,4 @@
 import { Link, useLocation } from "wouter";
-import { Button } from "@/components/ui/button";
 import { TrendingUp, Home, BrainCircuit, FileText } from "lucide-react";
 import logoPng from "@assets/ChatGPT_Image_Jan_7,_2026,_06_42_47_PM_1767791577817.png";
 
@@ -46,16 +45,6 @@ export function Navbar() {
 
         {/* Actions - Right */}
         <div className="flex-1 flex justify-end">
-          <div className="flex items-center gap-4">
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="border-[#54d292] text-[#54d292] hover:bg-[#54d292]/10 hover:text-[#54d292] font-bold"
-              data-testid="button-sign-in"
-            >
-              Sign In
-            </Button>
-          </div>
         </div>
       </div>
     </nav>
