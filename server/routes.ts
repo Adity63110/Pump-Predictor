@@ -72,15 +72,20 @@ export async function registerRoutes(
           const { data: trendingRows, error } = await supabase
             .from("trending_tokens")
             .select("ca")
-            .order("created_at", { ascending: false })
-            .limit(20);
+            .order("created_at", { ascending: false });
 
           if (error) {
             console.error("[Supabase] Fetch trending_tokens error:", error);
-          } else if (trendingRows && trendingRows.length > 0) {
-            tokensToFetch = trendingRows.map((row: any) => row.ca);
-            // Combine with hardcoded and unique-ify
-            tokensToFetch = Array.from(new Set([...tokensToFetch, ...TRENDING_TOKENS]));
+          } else if (trendingRows) {
+            // When we have Supabase data, it becomes the authoritative source
+            const supabaseCAs = trendingRows.map((row: any) => row.ca);
+            
+            if (supabaseCAs.length > 0) {
+              tokensToFetch = Array.from(new Set(supabaseCAs));
+            } else {
+              // If Supabase exists but table is empty, show nothing (user requested sync)
+              tokensToFetch = [];
+            }
           }
         } catch (err) {
           console.error("[Supabase] Fatal fetch error:", err);
