@@ -201,7 +201,7 @@ export async function registerRoutes(
       Respond with a JSON object: { "riskLevel": "Low" | "Medium" | "High", "confidence": "Weak" | "Moderate" | "Strong", "reasons": ["string"], "reasoning": "string" }`;
 
       const response = await openai.chat.completions.create({
-        model: "gpt-5.1",
+        model: "gpt-4o",
         messages: [{ role: "user", content: prompt }],
         response_format: { type: "json_object" },
       });
