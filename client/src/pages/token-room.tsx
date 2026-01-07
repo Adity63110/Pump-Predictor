@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { VotingBar } from "@/components/voting-bar";
 import { RugScale } from "@/components/rug-scale";
 import { ChatBox } from "@/components/chat-box";
-import { ArrowLeft, Copy, ExternalLink, ThumbsUp, ThumbsDown, AlertOctagon, Share2, Activity } from "lucide-react";
+import { ArrowLeft, Copy, ExternalLink, ThumbsUp, ThumbsDown, AlertOctagon, Share2, Activity, BrainCircuit } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 
@@ -154,6 +154,11 @@ export default function TokenRoom() {
             </div>
             
             <div className="flex gap-2">
+               <Link href="/ai-analyser">
+                 <Button variant="outline" size="sm" className="gap-2 border-primary/30 text-primary hover:bg-primary/5">
+                   <BrainCircuit className="w-4 h-4" /> AI Audit
+                 </Button>
+               </Link>
                <Button variant="outline" size="sm" className="gap-2">
                  <ExternalLink className="w-4 h-4" /> DexScreener
                </Button>
