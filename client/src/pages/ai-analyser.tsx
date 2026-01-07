@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { BrainCircuit, Loader2, Search, ArrowRight, ShieldCheck, ShieldAlert, Coins, Users, Activity, FlaskConical, AlertTriangle, TrendingUp } from "lucide-react";
+import { BrainCircuit, Loader2, Search, ArrowRight, ShieldCheck, ShieldAlert, Coins, Users, Activity, FlaskConical, AlertTriangle, TrendingUp, Shield } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -41,77 +41,183 @@ export default function AIAnalyser() {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    if (ca.trim()) {
+    if (ca.trim().length >= 32) {
       mutation.mutate(ca);
     }
   };
 
   const analysis = mutation.data;
+  const isInputValid = ca.trim().length >= 32;
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-foreground font-sans selection:bg-w-green/30">
+    <div className="min-h-screen bg-[#0a0a0a] text-foreground font-sans selection:bg-w-green/30 pb-20">
       <div className="container py-12 max-w-6xl mx-auto px-4 space-y-12">
-        {/* TOP SECTION: Token Input Panel */}
-        <div className="relative group">
-          <div className="absolute -inset-1 bg-gradient-to-r from-w-green/20 via-primary/20 to-trash-red/20 rounded-xl blur opacity-25 group-hover:opacity-50 transition duration-1000"></div>
-          <Card className="relative bg-[#111111] border-white/5 shadow-2xl overflow-hidden">
-            <CardContent className="p-8">
-              <div className="flex flex-col md:flex-row items-center gap-8">
-                <div className="flex-shrink-0">
-                  <div className="w-24 h-24 rounded-lg bg-black/50 border border-white/10 flex items-center justify-center overflow-hidden shadow-inner">
-                    {analysis?.imageUrl ? (
-                      <img src={analysis.imageUrl} alt={analysis.name} className="w-full h-full object-cover" />
-                    ) : (
-                      <div className="text-center">
-                        <Coins className="w-8 h-8 text-muted-foreground mx-auto mb-1 opacity-20" />
-                        <span className="text-[10px] text-muted-foreground/40 font-mono leading-tight px-2 block">Token image unavailable</span>
-                      </div>
-                    )}
-                  </div>
+        
+        {!analysis && !mutation.isPending && (
+          <div className="flex flex-col items-center justify-center space-y-12 py-12 md:py-20 animate-in fade-in duration-1000">
+            {/* HERO PANEL (CENTERED) */}
+            <div className="text-center space-y-6">
+              <div className="relative inline-block group">
+                <div className="absolute inset-0 bg-primary/20 blur-3xl rounded-full scale-150 animate-pulse transition-all duration-1000 group-hover:bg-primary/30"></div>
+                <div className="relative bg-black/40 p-6 rounded-3xl border border-white/5 shadow-2xl">
+                  <BrainCircuit className="h-16 w-16 md:h-20 md:w-20 text-primary transition-transform duration-1000 group-hover:scale-110" />
                 </div>
+              </div>
+              <div className="space-y-3">
+                <h1 className="text-4xl md:text-5xl font-black tracking-tighter uppercase text-white">
+                  AI Token Analyzer
+                </h1>
+                <p className="text-muted-foreground font-medium max-w-md mx-auto leading-relaxed">
+                  Paste a Pump.fun token contract address to analyze safety, bonding, and sentiment.
+                </p>
+              </div>
+            </div>
 
-                <div className="flex-1 w-full space-y-4">
-                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                    <div>
-                      <h1 className="text-3xl font-black tracking-tight flex items-center gap-2">
-                        {analysis ? `${analysis.name} (${analysis.symbol})` : "Analyze Any Token"}
-                        {analysis?.riskLevel === 'Low' && <ShieldCheck className="h-6 w-6 text-w-green drop-shadow-[0_0_8px_rgba(74,222,128,0.5)]" />}
-                      </h1>
-                      <p className="text-muted-foreground text-sm font-medium">Fast, confident, on-chain AI analysis</p>
-                    </div>
-                    {analysis && (
-                      <div className="bg-black/40 border border-white/5 rounded-lg px-4 py-2 flex items-center gap-3">
-                        <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Confidence</span>
-                        <span className="text-primary font-mono font-bold">{analysis.confidence}</span>
-                      </div>
-                    )}
-                  </div>
-
-                  <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-3">
-                    <div className="relative flex-1 group/input">
+            {/* INPUT CARD (FOCUS POINT) */}
+            <div className="w-full max-w-xl relative group">
+              <div className={cn(
+                "absolute -inset-1 bg-gradient-to-r from-primary/20 via-primary/40 to-primary/20 rounded-2xl blur opacity-25 group-focus-within:opacity-100 group-focus-within:blur-xl transition duration-500",
+                ca && "opacity-50 blur-lg"
+              )}></div>
+              <Card className="relative bg-[#111111] border-white/5 shadow-2xl overflow-hidden">
+                <CardContent className="p-6 md:p-8 space-y-6">
+                  <form onSubmit={handleSearch} className="space-y-4">
+                    <div className="relative group/input">
                       <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground group-focus-within/input:text-primary transition-colors" />
                       <Input 
-                        placeholder="Paste Contract Address (CA)..." 
+                        placeholder="Enter Solana CA (Pump.fun)" 
                         className="pl-12 h-14 bg-black/50 border-white/10 focus:border-primary/50 focus:ring-primary/20 transition-all text-lg font-mono placeholder:text-muted-foreground/30"
                         value={ca}
                         onChange={(e) => setCa(e.target.value)}
                         disabled={mutation.isPending}
                       />
                     </div>
+                    
                     <Button 
                       type="submit" 
                       size="lg" 
-                      className="h-14 px-10 bg-primary text-black font-black text-lg hover:bg-white hover:shadow-[0_0_20px_rgba(74,222,128,0.4)] transition-all uppercase tracking-tighter" 
-                      disabled={mutation.isPending}
+                      disabled={!isInputValid || mutation.isPending}
+                      className={cn(
+                        "w-full h-14 bg-primary text-black font-black text-lg transition-all uppercase tracking-tighter",
+                        isInputValid ? "hover:bg-white hover:shadow-[0_0_30px_rgba(74,222,128,0.5)] cursor-pointer" : "opacity-50 grayscale cursor-not-allowed"
+                      )}
                     >
-                      {mutation.isPending ? <Loader2 className="h-6 w-6 animate-spin" /> : "Analyze"}
+                      {mutation.isPending ? <Loader2 className="h-6 w-6 animate-spin" /> : "Analyze Token"}
                     </Button>
+                    
+                    <p className="text-center text-[10px] text-muted-foreground/40 font-mono uppercase tracking-widest">
+                      We analyze on-chain data only. No wallets are exposed.
+                    </p>
                   </form>
+
+                  {/* HOW IT WORKS (MINI EXPLAINER) */}
+                  <div className="pt-6 border-t border-white/5 space-y-3">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">How this works:</p>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-2 gap-x-4">
+                      {[
+                        { icon: Activity, text: "Reads real on-chain data" },
+                        { icon: Shield, text: "No wallet addresses shown" },
+                        { icon: Users, text: "Community votes optional" },
+                        { icon: BrainCircuit, text: "AI explains risks clearly" }
+                      ].map((item, i) => (
+                        <div key={i} className="flex items-center gap-2 text-[11px] text-muted-foreground/80 font-medium">
+                          <item.icon className="h-3 w-3 text-primary/50" />
+                          {item.text}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* PREVIEW STRIP (GREYED OUT) */}
+            <div className="w-full grid grid-cols-1 md:grid-cols-3 gap-6 opacity-10 grayscale blur-[2px] pointer-events-none select-none">
+              {[
+                { title: "Rug Risk Score", icon: AlertTriangle },
+                { title: "Bonding Progress", icon: FlaskConical },
+                { title: "Holder Signals", icon: Users }
+              ].map((item, i) => (
+                <Card key={i} className="bg-[#111111] border-white/5 p-6 h-32 flex flex-col justify-between">
+                  <div className="flex items-center gap-2">
+                    <item.icon className="h-4 w-4" />
+                    <span className="text-xs font-black uppercase tracking-widest">{item.title}</span>
+                  </div>
+                  <div className="h-2 bg-white/5 rounded w-full"></div>
+                </Card>
+              ))}
+            </div>
+
+            {/* LEGAL DISCLAIMER */}
+            <p className="text-[10px] text-muted-foreground/30 font-mono text-center max-w-xs uppercase tracking-tighter">
+              This tool provides analytical insights, not financial advice.
+            </p>
+          </div>
+        )}
+
+        {/* TOP SECTION: Token Input Panel (Visible after CA is entered/analyzing) */}
+        {(analysis || mutation.isPending) && (
+          <div className="relative group">
+            <div className="absolute -inset-1 bg-gradient-to-r from-w-green/20 via-primary/20 to-trash-red/20 rounded-xl blur opacity-25 group-hover:opacity-50 transition duration-1000"></div>
+            <Card className="relative bg-[#111111] border-white/5 shadow-2xl overflow-hidden">
+              <CardContent className="p-8">
+                <div className="flex flex-col md:flex-row items-center gap-8">
+                  <div className="flex-shrink-0">
+                    <div className="w-24 h-24 rounded-lg bg-black/50 border border-white/10 flex items-center justify-center overflow-hidden shadow-inner">
+                      {analysis?.imageUrl ? (
+                        <img src={analysis.imageUrl} alt={analysis.name} className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="text-center">
+                          <Coins className="w-8 h-8 text-muted-foreground mx-auto mb-1 opacity-20" />
+                          <span className="text-[10px] text-muted-foreground/40 font-mono leading-tight px-2 block">Token image unavailable</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="flex-1 w-full space-y-4">
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                      <div>
+                        <h1 className="text-3xl font-black tracking-tight flex items-center gap-2">
+                          {analysis ? `${analysis.name} (${analysis.symbol})` : "Analyze Any Token"}
+                          {analysis?.riskLevel === 'Low' && <ShieldCheck className="h-6 w-6 text-w-green drop-shadow-[0_0_8px_rgba(74,222,128,0.5)]" />}
+                        </h1>
+                        <p className="text-muted-foreground text-sm font-medium">Fast, confident, on-chain AI analysis</p>
+                      </div>
+                      {analysis && (
+                        <div className="bg-black/40 border border-white/5 rounded-lg px-4 py-2 flex items-center gap-3">
+                          <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Confidence</span>
+                          <span className="text-primary font-mono font-bold">{analysis.confidence}</span>
+                        </div>
+                      )}
+                    </div>
+
+                    <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-3">
+                      <div className="relative flex-1 group/input">
+                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground group-focus-within/input:text-primary transition-colors" />
+                        <Input 
+                          placeholder="Paste Contract Address (CA)..." 
+                          className="pl-12 h-14 bg-black/50 border-white/10 focus:border-primary/50 focus:ring-primary/20 transition-all text-lg font-mono placeholder:text-muted-foreground/30"
+                          value={ca}
+                          onChange={(e) => setCa(e.target.value)}
+                          disabled={mutation.isPending}
+                        />
+                      </div>
+                      <Button 
+                        type="submit" 
+                        size="lg" 
+                        className="h-14 px-10 bg-primary text-black font-black text-lg hover:bg-white hover:shadow-[0_0_20px_rgba(74,222,128,0.4)] transition-all uppercase tracking-tighter" 
+                        disabled={!isInputValid || mutation.isPending}
+                      >
+                        {mutation.isPending ? <Loader2 className="h-6 w-6 animate-spin" /> : "Analyze"}
+                      </Button>
+                    </form>
+                  </div>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
 
         {mutation.isPending && (
           <div className="flex flex-col items-center justify-center py-32 gap-6">
@@ -301,15 +407,6 @@ export default function AIAnalyser() {
                 </CardContent>
               </Card>
             </div>
-          </div>
-        )}
-
-        {/* Empty State placeholder */}
-        {!analysis && !mutation.isPending && (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 opacity-20 grayscale pointer-events-none">
-            {[1, 2, 3].map((i) => (
-              <Card key={i} className="bg-[#111111] border-white/5 h-64"></Card>
-            ))}
           </div>
         )}
       </div>
