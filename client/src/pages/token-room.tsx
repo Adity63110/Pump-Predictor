@@ -8,6 +8,7 @@ import { ChatBox } from "@/components/chat-box";
 import { ArrowLeft, Copy, ExternalLink, ThumbsUp, ThumbsDown, AlertOctagon, Share2, Activity, BrainCircuit } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
+import { ScrollReveal } from "@/components/scroll-reveal";
 
 export default function TokenRoom() {
   const [, params] = useRoute("/room/:id");
@@ -139,115 +140,127 @@ export default function TokenRoom() {
         <div className="lg:col-span-8 space-y-6">
           
           {/* Token Header */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div className="flex items-center gap-4">
-              <div className="w-16 h-16 rounded-full bg-secondary flex items-center justify-center text-2xl font-bold ring-2 ring-border">
-                {token.imageUrl ? <img src={token.imageUrl} className="w-full h-full rounded-full object-cover" /> : (token.symbol ? token.symbol[0] : "?")}
-              </div>
-              <div>
-                <h1 className="text-3xl font-extrabold tracking-tight flex items-center gap-2">
-                  {token.name} <span className="text-muted-foreground text-lg font-mono font-normal">/ {token.symbol}</span>
-                </h1>
-                <div className="flex items-center gap-4 mt-1 text-sm text-muted-foreground font-mono">
-                  <span className="flex items-center gap-1"><Activity className="w-3 h-3" /> MC: ${((token.marketCap || 0) / 1000).toFixed(0)}k</span>
-                  <span className="flex items-center gap-1 text-trash-red"><AlertOctagon className="w-3 h-3" /> Dev: {token.devWalletPct || 0}%</span>
+          <ScrollReveal>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="flex items-center gap-4">
+                <div className="w-16 h-16 rounded-full bg-secondary flex items-center justify-center text-2xl font-bold ring-2 ring-border">
+                  {token.imageUrl ? <img src={token.imageUrl} className="w-full h-full rounded-full object-cover" /> : (token.symbol ? token.symbol[0] : "?")}
+                </div>
+                <div>
+                  <h1 className="text-3xl font-extrabold tracking-tight flex items-center gap-2">
+                    {token.name} <span className="text-muted-foreground text-lg font-mono font-normal">/ {token.symbol}</span>
+                  </h1>
+                  <div className="flex items-center gap-4 mt-1 text-sm text-muted-foreground font-mono">
+                    <span className="flex items-center gap-1"><Activity className="w-3 h-3" /> MC: ${((token.marketCap || 0) / 1000).toFixed(0)}k</span>
+                    <span className="flex items-center gap-1 text-trash-red"><AlertOctagon className="w-3 h-3" /> Dev: {token.devWalletPct || 0}%</span>
+                  </div>
                 </div>
               </div>
-            </div>
-            
-            <div className="flex gap-2">
-               <Link href={`/ai-analyzer?ca=${token.ca}`}>
-                 <Button variant="outline" size="sm" className="gap-2 border-primary/30 text-primary hover:bg-primary/5">
-                   <BrainCircuit className="w-4 h-4" /> AI Audit
+              
+              <div className="flex gap-2">
+                 <Link href={`/ai-analyzer?ca=${token.ca}`}>
+                   <Button variant="outline" size="sm" className="gap-2 border-primary/30 text-primary hover:bg-primary/5">
+                     <BrainCircuit className="w-4 h-4" /> AI Audit
+                   </Button>
+                 </Link>
+                 <Button variant="outline" size="sm" className="gap-2">
+                   <ExternalLink className="w-4 h-4" /> DexScreener
                  </Button>
-               </Link>
-               <Button variant="outline" size="sm" className="gap-2">
-                 <ExternalLink className="w-4 h-4" /> DexScreener
-               </Button>
+              </div>
             </div>
-          </div>
+          </ScrollReveal>
 
           {/* Chart Area (DexScreener Embed) */}
-          <div className="h-[500px] w-full bg-card/30 rounded-xl border border-border/50 overflow-hidden relative group">
-            <iframe 
-              src={`https://dexscreener.com/solana/${token.ca}?embed=1&theme=dark&trades=0&info=0`}
-              style={{ width: '100%', height: '100%', border: '0' }}
-              title="DexScreener Chart"
-            />
-          </div>
+          <ScrollReveal delay={0.1}>
+            <div className="h-[500px] w-full bg-card/30 rounded-xl border border-border/50 overflow-hidden relative group">
+              <iframe 
+                src={`https://dexscreener.com/solana/${token.ca}?embed=1&theme=dark&trades=0&info=0`}
+                style={{ width: '100%', height: '100%', border: '0' }}
+                title="DexScreener Chart"
+              />
+            </div>
+          </ScrollReveal>
 
           {/* Voting Action Area */}
-          <div className="bg-card rounded-xl border border-border p-6 shadow-xl relative overflow-hidden">
-             {/* Background Glow based on majority */}
-             <div className={cn("absolute inset-0 opacity-5 pointer-events-none", 
-                ((token as any).wVotes || 0) > ((token as any).trashVotes || 0) ? "bg-w-green" : "bg-trash-red"
-             )} />
-             
-             <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
-                Public Verdict
-                <span className="text-xs font-normal text-muted-foreground bg-secondary px-2 py-1 rounded-full">
-                    {((token as any).wVotes || 0) + ((token as any).trashVotes || 0)} votes
-                </span>
-             </h2>
+          <ScrollReveal delay={0.2}>
+            <div className="bg-card rounded-xl border border-border p-6 shadow-xl relative overflow-hidden">
+               {/* Background Glow based on majority */}
+               <div className={cn("absolute inset-0 opacity-5 pointer-events-none", 
+                  ((token as any).wVotes || 0) > ((token as any).trashVotes || 0) ? "bg-w-green" : "bg-trash-red"
+               )} />
+               
+               <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
+                  Public Verdict
+                  <span className="text-xs font-normal text-muted-foreground bg-secondary px-2 py-1 rounded-full">
+                      {((token as any).wVotes || 0) + ((token as any).trashVotes || 0)} votes
+                  </span>
+               </h2>
 
-             <VotingBar wVotes={(token as any).wVotes || 0} trashVotes={(token as any).trashVotes || 0} className="mb-8" />
+               <VotingBar wVotes={(token as any).wVotes || 0} trashVotes={(token as any).trashVotes || 0} className="mb-8" />
 
-             <div className="grid grid-cols-2 gap-4">
-                <Button 
-                    size="lg" 
-                    className={cn(
-                        "h-28 text-4xl font-black uppercase tracking-tighter transition-all flex flex-col items-center justify-center gap-1",
-                        "bg-w-green text-white hover:brightness-110 active:scale-95 shadow-lg shadow-w-green/20",
-                        userVote === 'w' ? "ring-4 ring-white" : (userVote !== null ? "opacity-30 grayscale" : "")
-                    )}
-                    onClick={() => handleVote('w')}
-                    disabled={userVote !== null}
-                >
-                    <ThumbsUp className="w-10 h-10" />
-                    <span>W</span>
-                </Button>
+               <div className="grid grid-cols-2 gap-4">
+                  <Button 
+                      size="lg" 
+                      className={cn(
+                          "h-28 text-4xl font-black uppercase tracking-tighter transition-all flex flex-col items-center justify-center gap-1",
+                          "bg-w-green text-white hover:brightness-110 active:scale-95 shadow-lg shadow-w-green/20",
+                          userVote === 'w' ? "ring-4 ring-white" : (userVote !== null ? "opacity-30 grayscale" : "")
+                      )}
+                      onClick={() => handleVote('w')}
+                      disabled={userVote !== null}
+                  >
+                      <ThumbsUp className="w-10 h-10" />
+                      <span>W</span>
+                  </Button>
 
-                <Button 
-                    size="lg" 
-                    className={cn(
-                        "h-28 text-4xl font-black uppercase tracking-tighter transition-all flex flex-col items-center justify-center gap-1",
-                        "bg-trash-red text-white hover:brightness-110 active:scale-95 shadow-lg shadow-trash-red/20",
-                        userVote === 'trash' ? "ring-4 ring-white" : (userVote !== null ? "opacity-30 grayscale" : "")
-                    )}
-                    onClick={() => handleVote('trash')}
-                    disabled={userVote !== null}
-                >
-                    <ThumbsDown className="w-10 h-10" />
-                    <span>TRASH</span>
-                </Button>
-             </div>
-             
-             {userVote && (
-                 <p className="text-center text-xs text-muted-foreground mt-4 animate-in fade-in slide-in-from-bottom-2">
-                     Your verdict has been recorded.
-                 </p>
-             )}
-          </div>
+                  <Button 
+                      size="lg" 
+                      className={cn(
+                          "h-28 text-4xl font-black uppercase tracking-tighter transition-all flex flex-col items-center justify-center gap-1",
+                          "bg-trash-red text-white hover:brightness-110 active:scale-95 shadow-lg shadow-trash-red/20",
+                          userVote === 'trash' ? "ring-4 ring-white" : (userVote !== null ? "opacity-30 grayscale" : "")
+                      )}
+                      onClick={() => handleVote('trash')}
+                      disabled={userVote !== null}
+                  >
+                      <ThumbsDown className="w-10 h-10" />
+                      <span>TRASH</span>
+                  </Button>
+               </div>
+               
+               {userVote && (
+                   <p className="text-center text-xs text-muted-foreground mt-4 animate-in fade-in slide-in-from-bottom-2">
+                       Your verdict has been recorded.
+                   </p>
+               )}
+            </div>
+          </ScrollReveal>
         </div>
 
         {/* Right Column: Data & Chat */}
         <div className="lg:col-span-4 space-y-6">
-            <RugScale score={token.rugScale || 0} />
+            <ScrollReveal delay={0.3}>
+              <RugScale score={token.rugScale || 0} />
+            </ScrollReveal>
             
-            <div className="space-y-4">
-                <div className="grid grid-cols-1 gap-4">
-                    <div className="p-4 rounded-lg bg-card border border-border">
-                        <div className="text-xs text-muted-foreground mb-1">Top 10</div>
-                        <div className="text-lg font-mono font-bold text-yellow-500">14.5%</div>
-                    </div>
-                    <div className="p-4 rounded-lg bg-card border border-border">
-                        <div className="text-xs text-muted-foreground mb-1">Vol (24h)</div>
-                        <div className="text-lg font-mono font-bold">${(token as any).volume24h ? ((token as any).volume24h / 1000).toFixed(1) + 'k' : '0.0k'}</div>
-                    </div>
-                </div>
-            </div>
+            <ScrollReveal delay={0.4}>
+              <div className="space-y-4">
+                  <div className="grid grid-cols-1 gap-4">
+                      <div className="p-4 rounded-lg bg-card border border-border">
+                          <div className="text-xs text-muted-foreground mb-1">Top 10</div>
+                          <div className="text-lg font-mono font-bold text-yellow-500">14.5%</div>
+                      </div>
+                      <div className="p-4 rounded-lg bg-card border border-border">
+                          <div className="text-xs text-muted-foreground mb-1">Vol (24h)</div>
+                          <div className="text-lg font-mono font-bold">${(token as any).volume24h ? ((token as any).volume24h / 1000).toFixed(1) + 'k' : '0.0k'}</div>
+                      </div>
+                  </div>
+              </div>
+            </ScrollReveal>
 
-            <ChatBox marketId={token.id} />
+            <ScrollReveal delay={0.5}>
+              <ChatBox marketId={token.id} />
+            </ScrollReveal>
         </div>
 
       </main>
