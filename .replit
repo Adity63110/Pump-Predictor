@@ -46,3 +46,9 @@ waitForPort = 5000
 mockupState = "FULLSTACK"
 expertMode = true
 integrations = ["javascript_openai_ai_integrations:2.0.0"]
+
+[userenv]
+
+[userenv.shared]
+SUPABASE_URL = "https://yxvwqhmaseixmpihcxpz.supabase.co"
+SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl4dndxaG1hc2VpeG1waWhjeHB6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc3ODY1ODYsImV4cCI6MjA4MzM2MjU4Nn0.42FvylhNUhzI8ifbMocLFAPRWnVz6d3ZgcQICPP5Aes"
