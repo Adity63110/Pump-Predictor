@@ -30,21 +30,24 @@ export default function TokenRoom() {
           if (res.status === 404 && params.id?.length && params.id.length > 30) {
             // Likely a Solana CA, try to trigger analysis/creation
             try {
-              // We'll fetch analysis in background to show token info faster
-              fetch("/api/ai/analyse", {
+              // 1. Trigger AI analysis in background, but don't 'await' the result here
+              const analyseRes = await fetch("/api/ai/analyse", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ ca: params.id })
-              })
-              .then(res => res.json())
-              .then(data => {
-                setAnalysis(data);
-                // After creation, we might want to refresh token if it was just created
-                fetch(`/api/markets/${data.roomId}`).then(r => r.json()).then(setToken);
-              })
-              .catch(console.error);
-
-              // Try to find it on dexscreener directly for immediate display
+              });
+              
+              const analysisData = await analyseRes.json();
+              
+              if (analyseRes.ok && analysisData) {
+                // Return basic token info immediately from analysisData
+                return analysisData;
+              } else {
+                throw new Error("Analysis failed to start");
+              }
+            } catch (err) {
+              console.error("Auto-analysis initiation error:", err);
+              // Fallback: try to find it on dexscreener directly for immediate display
               const dexRes = await fetch(`https://api.dexscreener.com/latest/dex/tokens/${params.id}`);
               const dexData = await dexRes.json();
               const pair = dexData.pairs?.[0];
@@ -63,8 +66,7 @@ export default function TokenRoom() {
                   trashVotes: 0
                 };
               }
-            } catch (err) {
-              console.error("Immediate fetch error:", err);
+              throw new Error("Token not found");
             }
           }
           
@@ -75,25 +77,24 @@ export default function TokenRoom() {
           setToken(t || null);
           setLoading(false);
           
+          // If analysis state is still 'processing' or null, we might need to poll or just wait
+          if (t && t.status === "processing") {
+             // In a more complex app we'd use polling or WS here
+             // For now, let's just show what we have
+          }
+
+          if (t && t.reasons) {
+            setAnalysis(t);
+          }
+
           // Check if user has already voted
           const savedVote = localStorage.getItem(`vote_${params.id}`);
           if (savedVote) {
             setUserVote(savedVote as 'w' | 'trash');
           }
-
-          // If we have a token but no analysis yet, fetch it in background
-          if (t && t.ca && !analysis) {
-            fetch("/api/ai/analyse", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ ca: t.ca })
-            })
-            .then(res => res.json())
-            .then(setAnalysis)
-            .catch(console.error);
-          }
         })
-        .catch(() => {
+        .catch((err) => {
+          console.error("Room load error:", err);
           setLoading(false);
         });
     }
