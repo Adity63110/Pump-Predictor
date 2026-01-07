@@ -85,7 +85,7 @@ export async function registerRoutes(
         const existing = await storage.getMarketByCA(token.ca);
         if (!existing) {
           await storage.createMarket({
-            id: token.ca,
+            id: token.ca, // Ensure the ID is the CA
             name: token.name,
             symbol: token.symbol,
             ca: token.ca,

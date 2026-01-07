@@ -31,11 +31,13 @@ export default function TokenRoom() {
             });
             if (analyseRes.ok) {
               const analysis = await analyseRes.json();
-              // Re-fetch now that it's created
+              // The analysis endpoint now ensures the market is created and returns roomId
+              // We should re-fetch using the roomId (which is the CA)
               const marketRes = await fetch(`/api/markets/${analysis.roomId}`);
               return marketRes.json();
             }
           }
+          if (!res.ok) throw new Error("Failed to fetch market");
           return res.json();
         })
         .then((t) => {
