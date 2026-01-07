@@ -7,16 +7,16 @@ import { createClient } from "@supabase/supabase-js";
 import { db } from "./db";
 import { eq } from "drizzle-orm";
 
-// Initialize Supabase client
+// Initialize Supabase client (optional - will fallback to hardcoded trending tokens)
 const supabaseUrl = process.env.SUPABASE_URL || "";
 const supabaseAnonKey = process.env.SUPABASE_ANON_KEY || "";
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
+const supabase = supabaseUrl && supabaseAnonKey ? createClient(supabaseUrl, supabaseAnonKey) : null;
 
-// Using Replit AI Integrations for OpenAI access
-const openai = new OpenAI({
+// Using Replit AI Integrations for OpenAI access (optional - AI analysis won't work without it)
+const openai = process.env.AI_INTEGRATIONS_OPENAI_API_KEY ? new OpenAI({
   apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY,
   baseURL: process.env.AI_INTEGRATIONS_OPENAI_BASE_URL,
-});
+}) : null;
 
 // Authoritative curated list for PumpList
 const TRENDING_TOKENS = [
@@ -62,15 +62,19 @@ export async function registerRoutes(
   
   app.get("/api/pumplist", async (_req, res) => {
     try {
-      // Fetch curated tokens from Supabase table 'trending_tokens'
-      const { data: trendingRows, error } = await supabase
-        .from("trending_tokens")
-        .select("ca")
-        .order('created_at', { ascending: false });
+      let tokensToFetch = TRENDING_TOKENS;
+      
+      // Fetch curated tokens from Supabase table 'trending_tokens' if available
+      if (supabase) {
+        const { data: trendingRows, error } = await supabase
+          .from("trending_tokens")
+          .select("ca")
+          .order('created_at', { ascending: false });
 
-      const tokensToFetch = (trendingRows && trendingRows.length > 0) 
-        ? trendingRows.map(row => row.ca)
-        : TRENDING_TOKENS; 
+        if (trendingRows && trendingRows.length > 0) {
+          tokensToFetch = trendingRows.map(row => row.ca);
+        }
+      } 
 
       const tokens = await Promise.all(tokensToFetch.map(ca => fetchTokenData(ca)));
       const filteredTokens = tokens.filter(t => t !== null);
@@ -114,6 +118,10 @@ export async function registerRoutes(
   app.post("/api/trending/tokens", async (req, res) => {
     const { ca } = req.body;
     if (!ca) return res.status(400).json({ message: "CA is required" });
+
+    if (!supabase) {
+      return res.status(503).json({ message: "Supabase not configured. Configure SUPABASE_URL and SUPABASE_ANON_KEY environment variables." });
+    }
 
     try {
       const { data, error } = await supabase
@@ -307,36 +315,45 @@ export async function registerRoutes(
       marketData.rugScore = Math.min(rugScoreValue, 100);
       marketData.redFlags = rugSignals;
 
-      const prompt = `ELITE TOKEN AUDIT (MAXIMUM SKEPTICISM): 
-      Analyze the token ${ca}. Provide a breakdown of the supply distribution by percentage only. 
-      I do not need the specific wallet addresses. Please show:
-      - Percentage held by the Developer wallet: ${marketData.devShare}
-      - Total percentage held by the Top 10 individual holders (excluding DEX liquidity): ${marketData.top10IndividualShare}
-      - Estimated percentage held by Insider Clusters (wallets linked via transfers): ${marketData.insiderClusterShare}
-      - Percentage of supply currently locked or burned in liquidity pools: ${marketData.lockedBurnedShare}
+      let analysis = {
+        riskLevel: marketData.rugScore < 30 ? "Low" : marketData.rugScore < 60 ? "Medium" : "High",
+        confidence: "Moderate",
+        reasons: rugSignals.length > 0 ? rugSignals : ["No major red flags detected"],
+        reasoning: `Based on calculated rug score of ${marketData.rugScore}/100 and detected signals.`
+      };
 
-      RUG RISK SCORE: ${marketData.rugScore} / 100
-      SIGNALS DETECTED: ${rugSignals.join(", ")}
+      if (openai) {
+        const prompt = `ELITE TOKEN AUDIT (MAXIMUM SKEPTICISM): 
+        Analyze the token ${ca}. Provide a breakdown of the supply distribution by percentage only. 
+        I do not need the specific wallet addresses. Please show:
+        - Percentage held by the Developer wallet: ${marketData.devShare}
+        - Total percentage held by the Top 10 individual holders (excluding DEX liquidity): ${marketData.top10IndividualShare}
+        - Estimated percentage held by Insider Clusters (wallets linked via transfers): ${marketData.insiderClusterShare}
+        - Percentage of supply currently locked or burned in liquidity pools: ${marketData.lockedBurnedShare}
 
-      Focus EXCLUSIVELY on top holders, insider data, and market cap for your decision.
-      Market Cap (FDV): $${marketData.fdv.toLocaleString()}
-      
-      VERDICT CRITERIA:
-      - Final Rug Score (0-100): ${marketData.rugScore}
-      - Risk Level: Low (0-30), Medium (31-60), High (61-100)
-      - Your reasoning must justify the Risk Level using the rug score and signals.
-      - Use terms like "Momentum Potential", "Survival Likelihood", or "Market Health" instead of profitability.
-      - AVOID terms like "Safe", "Profitable", or "Guaranteed".
+        RUG RISK SCORE: ${marketData.rugScore} / 100
+        SIGNALS DETECTED: ${rugSignals.join(", ")}
 
-      Respond with a JSON object: { "riskLevel": "Low" | "Medium" | "High", "confidence": "Weak" | "Moderate" | "Strong", "reasons": ["string"], "reasoning": "string" }`;
+        Focus EXCLUSIVELY on top holders, insider data, and market cap for your decision.
+        Market Cap (FDV): $${marketData.fdv.toLocaleString()}
+        
+        VERDICT CRITERIA:
+        - Final Rug Score (0-100): ${marketData.rugScore}
+        - Risk Level: Low (0-30), Medium (31-60), High (61-100)
+        - Your reasoning must justify the Risk Level using the rug score and signals.
+        - Use terms like "Momentum Potential", "Survival Likelihood", or "Market Health" instead of profitability.
+        - AVOID terms like "Safe", "Profitable", or "Guaranteed".
 
-      const response = await openai.chat.completions.create({
-        model: "gpt-5.1",
-        messages: [{ role: "user", content: prompt }],
-        response_format: { type: "json_object" },
-      });
+        Respond with a JSON object: { "riskLevel": "Low" | "Medium" | "High", "confidence": "Weak" | "Moderate" | "Strong", "reasons": ["string"], "reasoning": "string" }`;
 
-      const analysis = JSON.parse(response.choices[0].message.content || "{}");
+        const response = await openai.chat.completions.create({
+          model: "gpt-5.1",
+          messages: [{ role: "user", content: prompt }],
+          response_format: { type: "json_object" },
+        });
+
+        analysis = JSON.parse(response.choices[0].message.content || "{}");
+      }
       
       // Market already fetched in parallel earlier
       let finalMarket = market;
