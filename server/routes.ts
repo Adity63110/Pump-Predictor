@@ -198,7 +198,7 @@ export async function registerRoutes(
       
       // Market already fetched in parallel earlier
       let finalMarket = market;
-      if (!finalMarket) {
+      if (!finalMarket && typeof marketData !== 'undefined') {
         finalMarket = await storage.createMarket({
           id: ca,
           name: marketData.name,
@@ -218,7 +218,7 @@ export async function registerRoutes(
         confidence: analysis.confidence,
         reasons: analysis.reasons,
         reasoning: analysis.reasoning,
-        roomId: market.id
+        roomId: finalMarket?.id
       });
     } catch (error: any) {
       console.error("AI Analysis error:", error);
