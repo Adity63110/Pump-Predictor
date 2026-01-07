@@ -19,12 +19,8 @@ export default function Home() {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (ca.trim()) {
-      const mockMatch = tokens.find(t => t.ca.toLowerCase() === ca.toLowerCase() || t.symbol.toLowerCase() === ca.toLowerCase());
-      if (mockMatch) {
-        setLocation(`/room/${mockMatch.id}`);
-      } else {
-        setLocation(`/room/${ca}`);
-      }
+      // Direct navigation to the room, letting TokenRoom handle analysis if needed
+      setLocation(`/room/${ca.trim()}`);
     }
   };
 

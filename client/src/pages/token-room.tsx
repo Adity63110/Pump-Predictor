@@ -29,20 +29,36 @@ export default function TokenRoom() {
         .then(async res => {
           if (res.status === 404 && params.id?.length && params.id.length > 30) {
             // Likely a Solana CA, try to trigger analysis/creation
-            const analyseRes = await fetch("/api/ai/analyse", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ ca: params.id })
-            });
-            if (analyseRes.ok) {
-              const analysisData = await analyseRes.json();
-              setAnalysis(analysisData);
-              // Re-fetch now that it's created
-              const marketRes = await fetch(`/api/markets/${analysisData.roomId}`);
-              return marketRes.json();
+            try {
+              const analyseRes = await fetch("/api/ai/analyse", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ ca: params.id })
+              });
+              
+              if (analyseRes.ok) {
+                const analysisData = await analyseRes.json();
+                setAnalysis(analysisData);
+                // Re-fetch now that it's created
+                const marketRes = await fetch(`/api/markets/${analysisData.roomId}`);
+                return marketRes.json();
+              } else {
+                // If analysis fails, try to return a 404 response to be handled by res.json()
+                return { message: "Analysis failed" };
+              }
+            } catch (err) {
+              console.error("Auto-analysis error:", err);
+              return { message: "Auto-analysis error" };
             }
           }
-          return res.json();
+          
+          // For non-404 or short IDs, handle normally
+          try {
+            return await res.json();
+          } catch (e) {
+            console.error("JSON parse error:", e);
+            return null;
+          }
         })
         .then((t) => {
           setToken(t || null);

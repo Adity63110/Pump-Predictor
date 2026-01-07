@@ -21,16 +21,18 @@ export async function registerRoutes(
   });
 
   app.get("/api/markets/:id", async (req, res) => {
-    const { id } = req.params;
-    let market = await storage.getMarket(id) || await storage.getMarketByCA(id);
-    
-    // If not found and looks like a CA, we could potentially auto-trigger analysis here
-    // but the frontend is already doing it for better UX control.
-    
-    if (!market) {
-      return res.status(404).json({ message: "Market not found" });
+    try {
+      const { id } = req.params;
+      let market = await storage.getMarket(id) || await storage.getMarketByCA(id);
+      
+      if (!market) {
+        return res.status(404).json({ message: "Market not found" });
+      }
+      res.json(market);
+    } catch (error) {
+      console.error("Error fetching market:", error);
+      res.status(500).json({ message: "Internal server error" });
     }
-    res.json(market);
   });
 
   app.post("/api/markets", async (req, res) => {
