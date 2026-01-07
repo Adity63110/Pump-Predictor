@@ -162,9 +162,6 @@ export default function TokenRoom() {
                <Button variant="outline" size="sm" className="gap-2">
                  <ExternalLink className="w-4 h-4" /> DexScreener
                </Button>
-               <Button variant="outline" size="sm" className="gap-2">
-                 <Share2 className="w-4 h-4" /> Share Room
-               </Button>
             </div>
           </div>
 
