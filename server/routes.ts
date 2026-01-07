@@ -64,24 +64,31 @@ export async function registerRoutes(
   app.get("/api/pumplist", async (_req, res) => {
     try {
       let tokensToFetch = TRENDING_TOKENS;
-      
+
       // Fetch curated tokens from Supabase table 'trending_tokens' if available
       if (supabase) {
-        const { data: trendingRows, error } = await supabase
-          .from("trending_tokens")
-          .select("ca")
-          .order('created_at', { ascending: false });
+        try {
+          const { data: trendingRows, error } = await supabase
+            .from("trending_tokens")
+            .select("ca")
+            .order("created_at", { ascending: false });
 
-        if (trendingRows && trendingRows.length > 0) {
-          tokensToFetch = trendingRows.map(row => row.ca);
+          if (error) {
+            console.error("[Supabase] Fetch trending_tokens error:", error);
+          } else if (trendingRows && trendingRows.length > 0) {
+            tokensToFetch = trendingRows.map((row: any) => row.ca);
+          }
+        } catch (err) {
+          console.error("[Supabase] Fatal fetch error:", err);
         }
-      } 
+      }
 
-      const tokens = await Promise.all(tokensToFetch.map(ca => fetchTokenData(ca)));
-      const filteredTokens = tokens.filter(t => t !== null);
+      const tokens = await Promise.all(tokensToFetch.map((ca: string) => fetchTokenData(ca)));
+      const filteredTokens = tokens.filter((t: any) => t !== null);
 
       // Auto-sync to internal markets table
       for (const token of filteredTokens) {
+        if (!token) continue;
         const existing = await storage.getMarketByCA(token.ca);
         if (!existing) {
           await storage.createMarket({
@@ -113,8 +120,8 @@ export async function registerRoutes(
       res.json(filteredTokens);
     } catch (error) {
       console.error("Supabase fetch error:", error);
-      const tokens = await Promise.all(TRENDING_TOKENS.map(ca => fetchTokenData(ca)));
-      res.json(tokens.filter(t => t !== null));
+      const tokens = await Promise.all(TRENDING_TOKENS.map((ca: string) => fetchTokenData(ca)));
+      res.json(tokens.filter((t: any) => t !== null));
     }
   });
 
@@ -378,9 +385,10 @@ export async function registerRoutes(
         if (supabase) {
           try {
             console.log(`[Supabase] Syncing token ${ca} to trending_tokens and rooms`);
+            
             const results = await Promise.allSettled([
-              supabase.from("trending_tokens").upsert([{ ca: ca }], { onConflict: 'ca' }),
-              supabase.from("rooms").upsert([{ 
+              supabase.from("trending_tokens").upsert({ ca: ca }, { onConflict: 'ca' }),
+              supabase.from("rooms").upsert({ 
                 id: ca,
                 name: marketData.name,
                 symbol: marketData.symbol,
@@ -388,16 +396,20 @@ export async function registerRoutes(
                 volume_24h: Math.floor(marketData.volume24h || 0),
                 rug_score: marketData.rugScore,
                 risk_level: analysis.riskLevel
-              }], { onConflict: 'id' })
+              }, { onConflict: 'id' })
             ]);
             
             results.forEach((res, idx) => {
+              const tableName = idx === 0 ? 'trending_tokens' : 'rooms';
               if (res.status === 'rejected') {
-                console.error(`[Supabase] Table ${idx === 0 ? 'trending_tokens' : 'rooms'} sync failed:`, res.reason);
-              } else if (res.value.error) {
-                console.error(`[Supabase] Table ${idx === 0 ? 'trending_tokens' : 'rooms'} sync error:`, res.value.error);
+                console.error(`[Supabase] Table ${tableName} sync failed:`, res.reason);
               } else {
-                console.log(`[Supabase] Table ${idx === 0 ? 'trending_tokens' : 'rooms'} sync success`);
+                const { error } = res.value;
+                if (error) {
+                  console.error(`[Supabase] Table ${tableName} sync error:`, error);
+                } else {
+                  console.log(`[Supabase] Table ${tableName} sync success`);
+                }
               }
             });
           } catch (err) {
