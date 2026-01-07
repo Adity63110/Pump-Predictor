@@ -1,9 +1,11 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertMarketSchema, insertVoteSchema, insertMessageSchema } from "@shared/schema";
+import { insertMarketSchema, insertVoteSchema, insertMessageSchema, markets } from "@shared/schema";
 import { OpenAI } from "openai";
 import { createClient } from "@supabase/supabase-js";
+import { db } from "./db";
+import { eq } from "drizzle-orm";
 
 // Initialize Supabase client
 const supabaseUrl = process.env.SUPABASE_URL || "";
@@ -71,7 +73,37 @@ export async function registerRoutes(
         : TRENDING_TOKENS; 
 
       const tokens = await Promise.all(tokensToFetch.map(ca => fetchTokenData(ca)));
-      res.json(tokens.filter(t => t !== null));
+      const filteredTokens = tokens.filter(t => t !== null);
+
+      // Auto-sync to internal markets table
+      for (const token of filteredTokens) {
+        const existing = await storage.getMarketByCA(token.ca);
+        if (!existing) {
+          await storage.createMarket({
+            id: token.ca,
+            name: token.name,
+            symbol: token.symbol,
+            ca: token.ca,
+            imageUrl: token.imageUrl || "",
+            marketCap: Math.floor(token.marketCap),
+            launchTime: new Date().toISOString(),
+            devWalletPct: token.devWalletPct,
+            rugScale: token.rugScore,
+          });
+        } else {
+          // Update existing market with latest data
+          await db.update(markets).set({
+            name: token.name,
+            symbol: token.symbol,
+            imageUrl: token.imageUrl || "",
+            marketCap: Math.floor(token.marketCap),
+            devWalletPct: token.devWalletPct,
+            rugScale: token.rugScore,
+          }).where(eq(markets.ca, token.ca));
+        }
+      }
+
+      res.json(filteredTokens);
     } catch (error) {
       console.error("Supabase fetch error:", error);
       const tokens = await Promise.all(TRENDING_TOKENS.map(ca => fetchTokenData(ca)));
