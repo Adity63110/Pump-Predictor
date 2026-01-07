@@ -1,6 +1,7 @@
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { TrendingUp, Home, BrainCircuit } from "lucide-react";
+import logoPng from "@assets/ChatGPT_Image_Jan_7,_2026,_06_42_47_PM_1767791577817.png";
 
 export function Navbar() {
   const [location] = useLocation();
@@ -16,9 +17,10 @@ export function Navbar() {
       <div className="container flex h-16 items-center justify-between">
         <div className="flex items-center gap-8">
           <Link href="/">
-            <span className="flex items-center space-x-2 cursor-pointer">
+            <div className="flex items-center space-x-2 cursor-pointer">
+              <img src={logoPng} alt="VerdictX Logo" className="h-8 w-auto" />
               <span className="text-xl font-bold tracking-tight text-primary">VerdictX</span>
-            </span>
+            </div>
           </Link>
           <div className="hidden md:flex items-center gap-6">
             {navItems.map((item) => (
