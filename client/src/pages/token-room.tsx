@@ -19,19 +19,37 @@ export default function TokenRoom() {
   useEffect(() => {
     if (params?.id) {
       setLoading(true);
-      // Fetch token from real API instead of mock
+      // Try to fetch market, if not found, it might be a CA that needs analysis
       fetch(`/api/markets/${params.id}`)
-        .then(res => res.json())
+        .then(async res => {
+          if (res.status === 404 && params.id?.length && params.id.length > 30) {
+            // Likely a Solana CA, try to trigger analysis/creation
+            const analyseRes = await fetch("/api/ai/analyse", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ ca: params.id })
+            });
+            if (analyseRes.ok) {
+              const analysis = await analyseRes.json();
+              // Re-fetch now that it's created
+              const marketRes = await fetch(`/api/markets/${analysis.roomId}`);
+              return marketRes.json();
+            }
+          }
+          return res.json();
+        })
         .then((t) => {
           setToken(t || null);
           setLoading(false);
           
-          // Check if user has already voted (simulated with local storage for now, 
-          // or we could add an endpoint to check by IP/Fingerprint)
+          // Check if user has already voted
           const savedVote = localStorage.getItem(`vote_${params.id}`);
           if (savedVote) {
             setUserVote(savedVote as 'w' | 'trash');
           }
+        })
+        .catch(() => {
+          setLoading(false);
         });
     }
   }, [params?.id]);
