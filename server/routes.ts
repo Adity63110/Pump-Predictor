@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertMarketSchema, insertVoteSchema } from "@shared/schema";
+import { insertMarketSchema, insertVoteSchema, insertMessageSchema } from "@shared/schema";
 import { OpenAI } from "openai";
 
 // Using Replit AI Integrations for OpenAI access
