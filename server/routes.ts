@@ -377,7 +377,18 @@ export async function registerRoutes(
         // Also add to Supabase trending_tokens if configured
         if (supabase) {
           try {
-            await supabase.from("trending_tokens").upsert([{ ca: ca }], { onConflict: 'ca' });
+            await Promise.all([
+              supabase.from("trending_tokens").upsert([{ ca: ca }], { onConflict: 'ca' }),
+              supabase.from("rooms").upsert([{ 
+                id: ca,
+                name: marketData.name,
+                symbol: marketData.symbol,
+                market_cap: Math.floor(marketData.fdv),
+                volume_24h: Math.floor(marketData.volume24h || 0),
+                rug_score: marketData.rugScore,
+                risk_level: analysis.riskLevel
+              }], { onConflict: 'id' })
+            ]);
           } catch (err) {
             console.error("Supabase upsert error:", err);
           }
