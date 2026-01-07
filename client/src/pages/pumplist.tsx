@@ -56,31 +56,6 @@ export default function PumpList() {
           Selected manually, analyzed on-chain in real-time.
         </p>
 
-        {/* Management Input */}
-        <div className="w-full max-w-md mb-12 p-4 bg-card border border-border rounded-xl shadow-lg animate-in slide-in-from-bottom-4 duration-500">
-          <div className="flex flex-col gap-4">
-            <div className="text-sm font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
-              <Plus className="w-4 h-4" /> Add Trending Token
-            </div>
-            <div className="flex gap-2">
-              <Input 
-                placeholder="Enter Contract Address (CA)..." 
-                value={newCa}
-                onChange={(e) => setNewCa(e.target.value)}
-                className="font-mono text-sm"
-                data-testid="input-trending-ca"
-              />
-              <Button 
-                onClick={() => addTokenMutation.mutate(newCa)}
-                disabled={!newCa || addTokenMutation.isPending}
-                data-testid="button-add-trending"
-              >
-                {addTokenMutation.isPending ? "Adding..." : "Add"}
-              </Button>
-            </div>
-          </div>
-        </div>
-
         <div className="p-4 bg-yellow-500/5 border border-yellow-500/20 rounded-lg text-xs text-yellow-500/80 font-mono uppercase tracking-widest flex items-center gap-3">
           <Activity className="w-4 h-4" />
           All momentum and risk data is algorithmic based on raw on-chain signals.
