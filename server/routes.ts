@@ -409,6 +409,14 @@ export async function registerRoutes(
             console.error("[Supabase] Fatal sync error:", err);
           }
         }
+      } else if (finalMarket && supabase) {
+        // Even if market exists locally, ensure it's in Supabase for global trending visibility
+        try {
+          console.log(`[Supabase] Ensuring existing token ${ca} is in trending_tokens`);
+          await supabase.from("trending_tokens").upsert({ ca: ca }, { onConflict: 'ca' });
+        } catch (err) {
+          console.error("[Supabase] Failed to sync existing token to trending:", err);
+        }
       }
 
       res.json({
