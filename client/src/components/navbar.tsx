@@ -18,7 +18,7 @@ export function Navbar() {
         <div className="flex items-center gap-8">
           <Link href="/">
             <div className="flex items-center space-x-2 cursor-pointer">
-              <img src={logoPng} alt="VerdictX Logo" className="h-8 w-auto" />
+              <img src={logoPng} alt="VerdictX Logo" className="h-10 w-auto" />
               <span className="text-xl font-bold tracking-tight text-primary">VerdictX</span>
             </div>
           </Link>
