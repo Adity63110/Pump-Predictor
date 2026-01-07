@@ -26,7 +26,7 @@ Preferred communication style: Simple, everyday language.
 - **Build Tool**: Vite with custom plugins for Replit integration
 - **Fonts**: Plus Jakarta Sans (display) and JetBrains Mono (code/data)
 
-The frontend follows a pages-based structure with reusable components. Key pages include Home (trending markets), TokenRoom (individual voting rooms), and AIAnalyser (AI-powered analysis).
+The frontend follows a pages-based structure with reusable components. Key pages include Home (trending markets), TokenRoom (individual voting rooms), and AIAnalyzer (AI-powered analysis).
 
 ### Backend Architecture
 - **Runtime**: Node.js with Express

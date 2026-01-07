@@ -65,7 +65,7 @@ export default function AIAnalyser() {
               </div>
               <div className="space-y-3">
                 <h1 className="text-4xl md:text-5xl font-black tracking-tighter uppercase text-white">
-                  VerdictX AI
+                  VerdictX AI Analyzer
                 </h1>
                 <p className="text-muted-foreground font-medium max-w-md mx-auto leading-relaxed">
                   Paste a Pump.fun token contract address to analyze safety, bonding, and sentiment.

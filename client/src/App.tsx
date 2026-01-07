@@ -16,7 +16,7 @@ function Router() {
     <Switch>
       <Route path="/" component={Home}/>
       <Route path="/room/:id" component={TokenRoom}/>
-      <Route path="/ai-analyser" component={AIAnalyser} />
+      <Route path="/ai-analyzer" component={AIAnalyser} />
       <Route path="/pumplist" component={PumpList} />
       <Route path="/docs" component={DocsPage} />
       <Route path="/markets" component={Home} />
