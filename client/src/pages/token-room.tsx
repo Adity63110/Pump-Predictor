@@ -36,15 +36,16 @@ export default function TokenRoom() {
                 body: JSON.stringify({ ca: params.id })
               });
               
-              if (analyseRes.ok) {
-                const analysisData = await analyseRes.json();
+              const analysisData = await analyseRes.json();
+              
+              if (analyseRes.ok && analysisData.roomId) {
                 setAnalysis(analysisData);
                 // Re-fetch now that it's created
                 const marketRes = await fetch(`/api/markets/${analysisData.roomId}`);
                 return marketRes.json();
               } else {
-                // If analysis fails, try to return a 404 response to be handled by res.json()
-                return { message: "Analysis failed" };
+                console.error("Analysis failed:", analysisData);
+                return { message: analysisData.message || "Analysis failed" };
               }
             } catch (err) {
               console.error("Auto-analysis error:", err);

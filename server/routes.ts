@@ -69,6 +69,11 @@ export async function registerRoutes(
         fetch(`https://api.dexscreener.com/latest/dex/tokens/${ca}`),
         storage.getMarketByCA(ca)
       ]);
+
+      if (!dexResponse.ok) {
+        throw new Error(`DexScreener API error: ${dexResponse.status}`);
+      }
+
       const dexData = await dexResponse.json();
       const dexPair = dexData.pairs?.[0];
 
