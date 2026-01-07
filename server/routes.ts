@@ -57,6 +57,30 @@ export async function registerRoutes(
     res.json(vote);
   });
 
+  app.get("/api/markets/:id/messages", async (req, res) => {
+    const { id } = req.params;
+    const messages = await storage.getMessages(id);
+    res.json(messages);
+  });
+
+  app.post("/api/markets/:id/messages", async (req, res) => {
+    const { id } = req.params;
+    const clientIp = (req.headers['x-forwarded-for'] as string || req.ip || req.socket.remoteAddress || 'unknown').split(',')[0].trim();
+    
+    const result = insertMessageSchema.safeParse({
+      ...req.body,
+      marketId: id,
+      voterWallet: clientIp
+    });
+
+    if (!result.success) {
+      return res.status(400).json({ error: result.error });
+    }
+
+    const message = await storage.addMessage(result.data);
+    res.json(message);
+  });
+
   app.post("/api/ai/analyse", async (req, res) => {
     const { ca } = req.body;
     if (!ca) return res.status(400).json({ message: "CA is required" });

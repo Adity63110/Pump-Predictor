@@ -245,7 +245,7 @@ export default function TokenRoom() {
                 </div>
             </div>
 
-            <ChatBox />
+            <ChatBox marketId={token.id} />
         </div>
 
       </main>
