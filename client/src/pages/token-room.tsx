@@ -241,54 +241,6 @@ export default function TokenRoom() {
                      Your verdict has been recorded.
                  </p>
              )}
-
-             {analysis && (
-               <Card className="border-primary/20 bg-primary/5 mt-6 no-default-hover-elevate">
-                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                   <CardTitle className="text-sm font-bold flex items-center gap-2">
-                     <BrainCircuit className="h-4 w-4 text-primary" />
-                     AI Deep Analysis
-                   </CardTitle>
-                   <div className={cn(
-                     "px-2 py-0.5 rounded-full text-[10px] font-bold border",
-                     analysis.riskLevel === 'Low' ? 'bg-w-green/10 text-w-green border-w-green/20' : 
-                     analysis.riskLevel === 'Medium' ? 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20' : 
-                     'bg-trash-red/10 text-trash-red border-trash-red/20'
-                   )}>
-                     {analysis.riskLevel} RISK
-                   </div>
-                 </CardHeader>
-                 <CardContent className="pt-4">
-                   <p className="text-sm italic leading-relaxed text-foreground/90 mb-4">"{analysis.reasoning}"</p>
-                   
-                   <div className="grid grid-cols-2 gap-2 mb-4">
-                     <div className="p-2 rounded bg-background/50 border border-border/50">
-                       <p className="text-[9px] text-muted-foreground uppercase font-bold">Dev Share</p>
-                       <p className="text-sm font-bold text-primary">{analysis.devShare}</p>
-                     </div>
-                     <div className="p-2 rounded bg-background/50 border border-border/50">
-                       <p className="text-[9px] text-muted-foreground uppercase font-bold">Insiders</p>
-                       <p className="text-sm font-bold text-trash-red">{analysis.insiderClusterShare}</p>
-                     </div>
-                   </div>
-
-                   {analysis.redFlags && (
-                     <div className="space-y-1">
-                       <p className="text-[10px] font-bold uppercase text-muted-foreground flex items-center gap-1">
-                         <ShieldAlert className="w-3 h-3" /> Risk Signals
-                       </p>
-                       <div className="flex flex-wrap gap-1">
-                         {analysis.redFlags.map((flag: string, i: number) => (
-                           <span key={i} className="text-[9px] bg-muted px-1.5 py-0.5 rounded border border-border">
-                             {flag}
-                           </span>
-                         ))}
-                       </div>
-                     </div>
-                   )}
-                 </CardContent>
-               </Card>
-             )}
           </div>
         </div>
 
@@ -296,6 +248,54 @@ export default function TokenRoom() {
         <div className="lg:col-span-4 space-y-6">
             <RugScale score={token.rugScale || 0} />
             
+            {analysis && (
+              <Card className="border-primary/20 bg-primary/5">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-bold flex items-center gap-2">
+                    <BrainCircuit className="h-4 w-4 text-primary" />
+                    AI Deep Analysis
+                  </CardTitle>
+                  <div className={cn(
+                    "px-2 py-0.5 rounded-full text-[10px] font-bold border",
+                    analysis.riskLevel === 'Low' ? 'bg-w-green/10 text-w-green border-w-green/20' : 
+                    analysis.riskLevel === 'Medium' ? 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20' : 
+                    'bg-trash-red/10 text-trash-red border-trash-red/20'
+                  )}>
+                    {analysis.riskLevel} RISK
+                  </div>
+                </CardHeader>
+                <CardContent className="pt-4">
+                  <p className="text-sm italic leading-relaxed text-foreground/90 mb-4">"{analysis.reasoning}"</p>
+                  
+                  <div className="grid grid-cols-2 gap-2 mb-4">
+                    <div className="p-2 rounded bg-background/50 border border-border/50">
+                      <p className="text-[9px] text-muted-foreground uppercase font-bold">Dev Share</p>
+                      <p className="text-sm font-bold text-primary">{analysis.devShare}</p>
+                    </div>
+                    <div className="p-2 rounded bg-background/50 border border-border/50">
+                      <p className="text-[9px] text-muted-foreground uppercase font-bold">Insiders</p>
+                      <p className="text-sm font-bold text-trash-red">{analysis.insiderClusterShare}</p>
+                    </div>
+                  </div>
+
+                  {analysis.redFlags && (
+                    <div className="space-y-1">
+                      <p className="text-[10px] font-bold uppercase text-muted-foreground flex items-center gap-1">
+                        <ShieldAlert className="w-3 h-3" /> Risk Signals
+                      </p>
+                      <div className="flex flex-wrap gap-1">
+                        {analysis.redFlags.map((flag: string, i: number) => (
+                          <span key={i} className="text-[9px] bg-muted px-1.5 py-0.5 rounded border border-border">
+                            {flag}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
+
             <div className="space-y-4">
                 <div className="grid grid-cols-1 gap-4">
                     <div className="p-4 rounded-lg bg-card border border-border">
