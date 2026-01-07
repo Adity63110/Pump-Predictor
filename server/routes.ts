@@ -78,9 +78,9 @@ export async function registerRoutes(
           if (error) {
             console.error("[Supabase] Fetch trending_tokens error:", error);
           } else if (trendingRows && trendingRows.length > 0) {
-            const supabaseCAs = trendingRows.map((row: any) => row.ca);
-            // Combine and unique-ify
-            tokensToFetch = Array.from(new Set([...supabaseCAs, ...TRENDING_TOKENS]));
+            tokensToFetch = trendingRows.map((row: any) => row.ca);
+            // Combine with hardcoded and unique-ify
+            tokensToFetch = Array.from(new Set([...tokensToFetch, ...TRENDING_TOKENS]));
           }
         } catch (err) {
           console.error("[Supabase] Fatal fetch error:", err);
