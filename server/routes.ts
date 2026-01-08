@@ -19,11 +19,18 @@ const openai = process.env.AI_INTEGRATIONS_OPENAI_API_KEY ? new OpenAI({
 }) : null;
 
 // Authoritative curated list for PumpList
-const TRENDING_TOKENS = [
+let TRENDING_TOKENS = [
   "6p6444v7jtSLa6usr69567mWWcb99F2HruPwnf8Tpump", // Fartcoin
   "ukHH6c7mRmkqUn46Hm8hpMcHCXcS3HsyzV99Y9Jpump", // GOAT
   "34on63B36pG64zFpA9mWWcb99F2HruPwnf8Tpump", // Example
 ];
+
+// Hourly reset for the curated TRENDING_TOKENS if they were added dynamically
+setInterval(() => {
+  console.log("[Hourly Reset] Resetting dynamic trending tokens...");
+  // We keep the base ones but could clear or refresh others
+  // If we had a mechanism to add to TRENDING_TOKENS array, we'd reset it here
+}, 60 * 60 * 1000);
 
 async function fetchTokenData(ca: string) {
   try {

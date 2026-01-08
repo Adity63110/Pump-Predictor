@@ -57,9 +57,29 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getTrendingMarkets(): Promise<Market[]> {
-    return await db.select().from(markets)
-      .orderBy(desc(sql`${markets.wVotes} + ${markets.trashVotes}`))
-      .limit(10);
+    const oneHourAgo = new Date();
+    oneHourAgo.setHours(oneHourAgo.getHours() - 1);
+
+    // Get market IDs with most votes in the last hour
+    const trendingResults = await db.select({
+      marketId: votes.marketId,
+      voteCount: sql<number>`count(*)`.as('vote_count')
+    })
+    .from(votes)
+    .where(sql`${votes.createdAt} >= ${oneHourAgo}`)
+    .groupBy(votes.marketId)
+    .orderBy(desc(sql`count(*)`))
+    .limit(10);
+
+    if (trendingResults.length === 0) {
+      // Fallback to all-time if no recent activity, or just return empty
+      return await db.select().from(markets)
+        .orderBy(desc(sql`${markets.wVotes} + ${markets.trashVotes}`))
+        .limit(10);
+    }
+
+    const marketIds = trendingResults.map(r => r.marketId);
+    return await db.select().from(markets).where(sql`${markets.id} IN ${marketIds}`);
   }
 
   async createMarket(insertMarket: InsertMarket): Promise<Market> {
