@@ -328,6 +328,3 @@ export default function LandingPage() {
   );
 }
 
-function cn(...inputs: any[]) {
-  return inputs.filter(Boolean).join(" ");
-}
