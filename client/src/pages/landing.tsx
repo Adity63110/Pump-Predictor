@@ -6,6 +6,96 @@ import { ScrollReveal } from "@/components/scroll-reveal";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 
+function AIAnalysisColumn() {
+  const [step, setStep] = useState(0);
+  const factors = [
+    "Dev wallet exposure",
+    "Insider concentration",
+    "Holder distribution",
+    "Bonding progress",
+    "Volume authenticity",
+    "Liquidity risk"
+  ];
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setStep((prev) => (prev + 1) % (factors.length + 1));
+    }, 2000);
+    return () => clearInterval(interval);
+  }, [factors.length]);
+
+  return (
+    <div className="w-full lg:w-80 shrink-0">
+      <ScrollReveal delay={0.4}>
+        <div className="relative group">
+          <div className="absolute -inset-0.5 bg-gradient-to-b from-[#54d292]/20 to-transparent rounded-xl blur opacity-30 group-hover:opacity-100 transition duration-500"></div>
+          <div className="relative bg-zinc-900/90 backdrop-blur-2xl border border-zinc-800/50 rounded-xl p-6 shadow-2xl overflow-hidden text-left">
+            {/* Scan Line Animation */}
+            <div className="absolute inset-x-0 h-[2px] bg-gradient-to-r from-transparent via-[#54d292]/50 to-transparent top-0 animate-[scan_3s_ease-in-out_infinite] pointer-events-none" />
+            
+            <div className="flex items-center gap-2 mb-6">
+              <div className="p-1.5 rounded-md bg-[#54d292]/10">
+                <BrainCircuit className="w-4 h-4 text-[#54d292]" />
+              </div>
+              <h3 className="text-[10px] font-black uppercase tracking-[0.25em] text-[#54d292]/80">AI Real-time Scan</h3>
+            </div>
+
+            <div className="space-y-4 mb-8">
+              {factors.map((factor, idx) => (
+                <div 
+                  key={factor} 
+                  className={cn(
+                    "flex items-center gap-3 transition-all duration-500",
+                    idx < step ? "opacity-100 translate-x-0" : "opacity-20 -translate-x-1"
+                  )}
+                >
+                  {idx < step ? (
+                    <CheckCircle2 className="w-3.5 h-3.5 text-[#54d292]" />
+                  ) : (idx === step ? (
+                    <Loader2 className="w-3.5 h-3.5 text-[#54d292] animate-spin" />
+                  ) : (
+                    <div className="w-3.5 h-3.5 rounded-full border border-zinc-700" />
+                  ))}
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-zinc-300">{factor}</span>
+                </div>
+              ))}
+            </div>
+
+            <div className="space-y-5 pt-6 border-t border-zinc-800/50">
+              <div className="space-y-2">
+                <div className="flex justify-between text-[10px] font-mono uppercase tracking-tighter text-zinc-500">
+                  <span>Rug Score Meter</span>
+                  <span className="text-[#54d292] animate-pulse">Waiting...</span>
+                </div>
+                <div className="h-1.5 w-full bg-zinc-800 rounded-full overflow-hidden">
+                  <div className="h-full w-1/3 bg-gradient-to-r from-[#54d292]/20 to-[#54d292]/40 rounded-full animate-[pulse_2s_infinite]" />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex justify-between text-[10px] font-mono uppercase tracking-tighter text-zinc-500">
+                  <span>Bonding Progress</span>
+                  <span>--%</span>
+                </div>
+                <div className="h-1.5 w-full bg-zinc-800 rounded-full overflow-hidden">
+                  <div className="h-full w-0 bg-[#54d292] rounded-full transition-all duration-1000" />
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between pt-2">
+                <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Verdict Status</span>
+                <span className="px-2 py-0.5 rounded text-[10px] font-black uppercase bg-zinc-800 text-zinc-400 italic">
+                  Pending
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </ScrollReveal>
+    </div>
+  );
+}
+
 export default function LandingPage() {
   return (
     <div className="bg-black text-white font-sans selection:bg-[#54d292]/30 overflow-x-hidden">
@@ -46,72 +136,7 @@ export default function LandingPage() {
             </ScrollReveal>
           </div>
 
-          <ScrollReveal delay={0.3} className="hidden lg:block">
-            <motion.div 
-              initial={{ y: 0 }}
-              animate={{ y: [-10, 10, -10] }}
-              transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-              className="relative p-8 bg-zinc-900/50 backdrop-blur-xl border border-[#54d292]/20 rounded-2xl shadow-2xl shadow-[#54d292]/10"
-            >
-              <div className="space-y-6">
-                <div className="flex justify-between items-center">
-                  <h3 className="text-2xl font-black uppercase text-[#54d292]">VerdictX Analysis</h3>
-                  <div className="px-3 py-1 bg-[#54d292]/20 text-[#54d292] rounded text-xs font-bold uppercase">Safe</div>
-                </div>
-                
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-xs font-bold uppercase text-zinc-500">
-                      <span>Rug Score</span>
-                      <span className="text-[#54d292]">2/100</span>
-                    </div>
-                    <div className="h-2 bg-zinc-800 rounded-full overflow-hidden">
-                      <motion.div 
-                        initial={{ width: 0 }}
-                        whileInView={{ width: "2%" }}
-                        className="h-full bg-[#54d292]"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-xs font-bold uppercase text-zinc-500">
-                      <span>Bonding Progress</span>
-                      <span className="text-[#54d292]">84%</span>
-                    </div>
-                    <div className="h-2 bg-zinc-800 rounded-full overflow-hidden">
-                      <motion.div 
-                        initial={{ width: 0 }}
-                        whileInView={{ width: "84%" }}
-                        className="h-full bg-[#54d292]"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="flex justify-center pt-4">
-                    <div className="relative w-32 h-32 flex items-center justify-center">
-                      <svg className="w-full h-full rotate-[-90deg]">
-                        <circle cx="64" cy="64" r="58" stroke="currentColor" strokeWidth="8" fill="transparent" className="text-zinc-800" />
-                        <motion.circle 
-                          initial={{ strokeDashoffset: 364 }}
-                          whileInView={{ strokeDashoffset: 364 - (364 * 0.12) }}
-                          cx="64" cy="64" r="58" stroke="currentColor" strokeWidth="8" fill="transparent" strokeDasharray="364" 
-                          className="text-[#54d292]"
-                        />
-                      </svg>
-                      <div className="absolute inset-0 flex flex-col items-center justify-center">
-                        <span className="text-2xl font-black text-white">12%</span>
-                        <span className="text-[8px] font-bold text-zinc-500 uppercase">Insiders</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              
-              {/* Decorative Glow */}
-              <div className="absolute -inset-0.5 bg-[#54d292] rounded-2xl blur opacity-20 pointer-events-none" />
-            </motion.div>
-          </ScrollReveal>
+          <AIAnalysisColumn />
         </div>
       </section>
 
