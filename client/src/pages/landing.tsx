@@ -1,12 +1,40 @@
 import { useState, useEffect } from "react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, ShieldCheck, TrendingUp, BrainCircuit, FileText, Zap, Search, Activity, AlertTriangle, CheckCircle2, Loader2 } from "lucide-react";
+import { ArrowRight, ShieldCheck, TrendingUp, BrainCircuit, FileText, Zap, Search, Activity, AlertTriangle, CheckCircle2, Loader2, ChevronDown } from "lucide-react";
 import { ScrollReveal } from "@/components/scroll-reveal";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 
 export default function LandingPage() {
+  const faqItems = [
+    {
+      q: "What is VerdictX?",
+      a: "VerdictX is an AI-powered analysis platform for pump.fun tokens that combines on-chain intelligence with real community voting to assess risk and sentiment."
+    },
+    {
+      q: "Does VerdictX show wallet addresses?",
+      a: "No. VerdictX never displays wallet addresses. Only percentages and aggregated signals are shown to protect privacy and prevent misuse."
+    },
+    {
+      q: "How is the rug score calculated?",
+      a: "The rug score is generated using multiple factors including dev wallet exposure, insider concentration, holder distribution, bonding progress, and trading behavior."
+    },
+    {
+      q: "Is the data real or simulated?",
+      a: "All analysis is based on real on-chain data. Community votes are recorded live and reflected instantly."
+    },
+    {
+      q: "Can anyone vote on a token?",
+      a: "Yes. Any user can participate in voting and discussion rooms once a token is analyzed."
+    },
+    {
+      q: "Is VerdictX financial advice?",
+      a: "No. VerdictX provides data and insights only. All trading decisions are your own."
+    }
+  ];
+
   return (
     <div className="bg-black text-white font-sans selection:bg-[#54d292]/30 overflow-x-hidden">
       
@@ -279,7 +307,36 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* 7. Final CTA */}
+      {/* 7. FAQ Section */}
+      <section className="py-24 px-4 max-w-3xl mx-auto border-t border-zinc-900/50">
+        <ScrollReveal className="text-center mb-16">
+          <h2 className="text-4xl font-black uppercase tracking-tight mb-2">Frequently Asked</h2>
+          <div className="w-20 h-1 bg-[#54d292] mx-auto rounded-full" />
+        </ScrollReveal>
+
+        <ScrollReveal delay={0.1}>
+          <Accordion type="single" collapsible className="space-y-4">
+            {faqItems.map((item, i) => (
+              <AccordionItem 
+                key={i} 
+                value={`item-${i}`} 
+                className="border border-zinc-800 bg-zinc-900/20 rounded-xl px-6 data-[state=open]:border-[#54d292]/40 data-[state=open]:bg-zinc-900/40 data-[state=open]:shadow-[0_0_30px_rgba(84,210,146,0.05)] transition-all duration-300 overflow-hidden"
+              >
+                <AccordionTrigger className="text-left font-black uppercase tracking-tight hover:no-underline py-6 group">
+                  <span className="flex-1 group-data-[state=open]:text-[#54d292] transition-colors">
+                    {item.q}
+                  </span>
+                </AccordionTrigger>
+                <AccordionContent className="text-zinc-400 font-medium leading-relaxed pb-6 text-sm">
+                  {item.a}
+                </AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
+        </ScrollReveal>
+      </section>
+
+      {/* 8. Final CTA */}
       <section className="py-32 px-4 text-center relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-t from-[#54d292]/5 to-transparent pointer-events-none" />
         <ScrollReveal>

@@ -1,0 +1,94 @@
+❓ Homepage FAQ Section (VerdictX)
+📍 Placement
+
+Near the bottom of the homepage
+
+Just above the final CTA
+
+Calm zone after the high-energy sections
+
+🎨 Visual Style
+
+Dark background, slightly lighter than footer
+
+Thin pump.fun green accent line at the top
+
+Accordion-style cards
+
+Soft glow only on active question
+
+📘 FAQ Content (Use These Exactly)
+What is VerdictX?
+
+VerdictX is an AI-powered analysis platform for pump.fun tokens that combines on-chain intelligence with real community voting to assess risk and sentiment.
+
+Does VerdictX show wallet addresses?
+
+No. VerdictX never displays wallet addresses.
+Only percentages and aggregated signals are shown to protect privacy and prevent misuse.
+
+How is the rug score calculated?
+
+The rug score is generated using multiple factors including dev wallet exposure, insider concentration, holder distribution, bonding progress, and trading behavior.
+
+Is the data real or simulated?
+
+All analysis is based on real on-chain data.
+Community votes are recorded live and reflected instantly.
+
+Can anyone vote on a token?
+
+Yes. Any user can participate in voting and discussion rooms once a token is analyzed.
+
+Is VerdictX financial advice?
+
+No. VerdictX provides data and insights only.
+All trading decisions are your own.
+
+✨ Interaction Details
+
+Only one FAQ opens at a time
+
+Smooth expand/collapse animation
+
+Subtle green glow on open state
+
+Icons rotate slightly on toggle
+
+🧠 Replit Prompt (Homepage FAQ)
+
+Copy-paste this 👇
+
+🔹 Prompt
+
+Add a FAQ section to the VerdictX homepage.
+
+Design:
+
+Dark theme with Pump.fun green accents
+
+Accordion-style expandable questions
+
+Content:
+
+What is VerdictX?
+
+Does VerdictX show wallet addresses?
+
+How is the rug score calculated?
+
+Is the data real or simulated?
+
+Can anyone vote on a token?
+
+Is VerdictX financial advice?
+
+UX:
+
+Smooth open/close animations
+
+One item open at a time
+
+Lightweight and mobile responsive
+
+Place this section above the final call-to-action.
