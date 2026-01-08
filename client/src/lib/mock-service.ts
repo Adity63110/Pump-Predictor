@@ -17,6 +17,7 @@ export interface Token {
   };
   rugScale: number; // 0-100
   chartData: { time: string; price: number }[];
+  aiDescription?: string;
 }
 
 export interface ChatMessage {
@@ -134,6 +135,7 @@ export const mockService = {
           isFrozen: market.isFrozen,
           votes: { w: market.wVotes, trash: market.trashVotes },
           rugScale: market.rugScale,
+          aiDescription: market.aiDescription,
           chartData: generateChartData() // We'll still generate mock points but base them on real price
         };
         
