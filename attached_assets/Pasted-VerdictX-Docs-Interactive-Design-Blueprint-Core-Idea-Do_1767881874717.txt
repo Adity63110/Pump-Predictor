@@ -1,0 +1,220 @@
+VerdictX Docs — Interactive Design Blueprint
+🧠 Core Idea
+
+Docs should:
+
+Explain how things work
+
+Prove you’re transparent
+
+Feel alive, not static
+
+Think Notion + terminal + pump.fun energy.
+
+🧭 Docs Layout (Left + Right)
+🔹 Left Sidebar (Sticky)
+
+Minimal, collapsible, smooth.
+
+Sections:
+
+Overview
+
+How VerdictX Works
+
+AI Analysis Engine
+
+Rug Score Explained
+
+Bonding Progress
+
+PumpList
+
+Voting & Rooms
+
+Data Sources
+
+FAQ
+
+Active section glows in pump.fun green.
+
+🧩 Right Content Area (Interactive)
+1️⃣ Overview (Hero-style intro)
+
+Big headline:
+
+Transparency beats alpha.
+
+Short explainer card with subtle animation.
+
+2️⃣ How VerdictX Works (Step Cards)
+
+Instead of paragraphs:
+
+Step 1: Paste Contract
+Step 2: AI + Community Analysis
+Step 3: Verdict Generated
+
+Each card expands on click.
+
+3️⃣ AI Analysis Engine (Live Demo Feel)
+
+Show fake/sample data in animated cards:
+
+Dev Wallet: 12%
+
+Insiders: 9%
+
+Top Holders: 41%
+
+Bonding: 67%
+
+🪄 Numbers animate when section enters view.
+
+Tooltip on hover:
+
+Wallet addresses are never shown. Only percentages.
+
+4️⃣ Rug Score (Interactive Slider)
+
+User drags a slider:
+
+Low Risk → Medium → High Risk
+
+As they slide:
+
+Text explanation updates
+
+Color shifts smoothly
+
+This makes the logic obvious without math walls.
+
+5️⃣ Bonding Progress (Animated Bar)
+
+Show:
+
+What bonding means
+
+Why low bonding = danger
+
+Animated bar fills with explanation appearing beside it.
+
+6️⃣ PumpList (Filterable)
+
+Show sample PumpList:
+
+SAFE
+
+CAUTION
+
+RISK
+
+Let users toggle categories.
+
+Even if data is static now, UI feels real.
+
+7️⃣ Voting & Rooms (Visual Walkthrough)
+
+Use mock chat bubbles:
+
+“W”
+
+“Trash”
+
+“Dev holding too much”
+
+Explain:
+
+Votes are permanent
+
+No wallet names
+
+Percentages only
+
+8️⃣ Data Sources (Trust Section)
+
+Cards with:
+
+On-chain data
+
+Community signals
+
+AI aggregation
+
+No external API details needed. Just confidence.
+
+9️⃣ FAQ (Accordion Style)
+
+Click to expand.
+Smooth open/close.
+Green highlight on active question.
+
+✨ Micro-Interactions That Sell It
+
+Scroll reveal animations
+
+Hover highlights
+
+Expandable cards
+
+Animated percentages
+
+No page reloads
+
+Docs should feel like a dashboard.
+
+🧠 Replit Prompt (Interactive Docs)
+
+Copy this exactly 👇
+
+🔹 Prompt
+
+Create an interactive documentation page for VerdictX.
+
+Style:
+
+Dark theme with Pump.fun green accents
+
+Clean, modern, intelligence-focused
+
+Layout:
+
+Sticky left sidebar navigation
+
+Scrollable right content area
+
+Features:
+
+Expandable sections
+
+Animated sample metrics (dev %, insider %, bonding)
+
+Interactive rug score explanation
+
+Animated bonding progress bar
+
+Filterable PumpList preview
+
+Accordion-style FAQ
+
+UX Requirements:
+
+Smooth scroll animations
+
+Lightweight performance
+
+Mobile responsive
+
+No real wallet addresses displayed
+
+Focus on transparency, clarity, and engagement.
+
+🧠 Why This Wins
+
+Users stay longer
+
+Builds instant trust
+
+Makes your AI feel real
+
+Separates VerdictX from copycat tools
