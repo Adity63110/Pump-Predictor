@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/home";
+import LandingPage from "@/pages/landing";
 import TokenRoom from "@/pages/token-room";
 import AIAnalyser from "@/pages/ai-analyser";
 import PumpList from "@/pages/pumplist";
@@ -14,7 +15,7 @@ import { Navbar } from "@/components/navbar";
 function Router() {
   return (
     <Switch>
-      <Route path="/" component={Home}/>
+      <Route path="/" component={LandingPage}/>
       <Route path="/room/:id" component={TokenRoom}/>
       <Route path="/ai-analyzer" component={AIAnalyser} />
       <Route path="/ai-analyser" component={AIAnalyser} />

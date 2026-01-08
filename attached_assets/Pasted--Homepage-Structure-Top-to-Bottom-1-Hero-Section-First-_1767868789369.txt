@@ -1,0 +1,189 @@
+🏠 Homepage Structure (Top to Bottom)
+1️⃣ Hero Section (First 5 seconds matter)
+
+Left:
+
+Big headline:
+
+Know before you ape.
+
+Subtext:
+
+AI-powered on-chain verdicts for pump.fun tokens.
+Dev wallets, insiders, bonding progress, rug score. No addresses. Just truth.
+
+CTA buttons:
+
+🟢 Analyze Token
+
+📊 View PumpList
+
+Right:
+
+Animated card mockup:
+
+Token name
+
+Rug score meter
+
+Bonding progress bar
+
+Insider % ring
+
+🪄 Card slowly floats, slight glow.
+
+2️⃣ Trust Strip (Instant credibility)
+
+A horizontal strip with minimal icons:
+
+Dev Wallet %
+
+Insider Wallet %
+
+Top Holders %
+
+Real Bonding Progress
+
+Live Volume
+
+Each appears on scroll.
+
+3️⃣ AI Analyzer Preview (Your core weapon)
+
+A dark panel with green borders.
+
+Before CA input (important):
+
+“What VerdictX checks”
+
+Dev control
+
+Insider accumulation
+
+Holder distribution
+
+Bonding curve
+
+Volume authenticity
+
+Use cards that reveal on scroll.
+
+4️⃣ PumpList Section (Top Trending Tokens)
+
+Grid of cards:
+
+Token name
+
+24h volume
+
+Bonding %
+
+Verdict badge: SAFE / CAUTION / RISK
+
+⚠️ Since you control this:
+
+Add note: Curated & verified
+
+5️⃣ How VerdictX Works (Simple = Powerful)
+
+Three steps, big icons:
+
+Paste CA
+
+AI analyzes on-chain data
+
+Verdict delivered
+
+No fluff. No buzzwords.
+
+6️⃣ Docs Teaser Section
+
+A calm section, less glow.
+
+“Want to know how verdicts are calculated?”
+
+Button: 📘 Read Docs
+
+This builds transparency and trust.
+
+7️⃣ Final CTA (Close strong)
+
+Big text, center aligned:
+
+Don’t guess.
+Get a verdict.
+
+Button:
+🟢 Analyze a Token
+
+✨ Visual Effects That Make It “Amazing”
+
+Scroll-reveal animations (you already planned this)
+
+Soft green glow on cards
+
+Hover lift on token cards
+
+Thin animated bonding bars
+
+No heavy gradients, just controlled glow
+
+🧠 Replit Prompt (Homepage Builder)
+
+Copy this exactly 👇
+
+🔹 Homepage Design Prompt
+
+Create a visually outstanding homepage for VerdictX, an AI-powered pump.fun token analyzer.
+
+Design style:
+
+Dark, premium UI with Pump.fun green accents
+
+Minimal, confident, professional
+
+No clutter, no meme visuals
+
+Homepage sections:
+
+Hero section with headline, subtext, CTAs, and animated analyzer card
+
+Trust indicators showing dev %, insider %, holders %, bonding progress
+
+AI Analyzer preview explaining what checks are performed (before CA input)
+
+PumpList section displaying top tokens (data provided manually)
+
+How it works (3-step flow)
+
+Docs teaser section
+
+Final CTA
+
+Effects:
+
+Scroll-based reveal animations
+
+Subtle green glow accents
+
+Smooth hover interactions
+
+Constraints:
+
+Fast loading
+
+Mobile responsive
+
+Suitable for low-RAM devices
+
+Focus on clarity, trust, and visual impact.
+
+🧠 Why This Homepage Will Hit
+
+Explains value in 3 seconds
+
+Builds trust without showing wallet addresses
+
+Feels like a serious tool, not a meme
+
+Scales well when you add real data later

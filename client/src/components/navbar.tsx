@@ -1,13 +1,14 @@
 import { Link, useLocation } from "wouter";
-import { TrendingUp, Home, BrainCircuit, FileText } from "lucide-react";
+import { TrendingUp, Home, BrainCircuit, FileText, Zap } from "lucide-react";
 import logoPng from "@assets/ChatGPT_Image_Jan_7,_2026,_06_42_47_PM_1767791577817.png";
 
 export function Navbar() {
   const [location] = useLocation();
 
   const navItems = [
-    { href: "/", label: "Markets", icon: Home },
-    { href: "/pumplist", label: "Trending", icon: TrendingUp },
+    { href: "/", label: "Home", icon: Home },
+    { href: "/markets", label: "Markets", icon: TrendingUp },
+    { href: "/pumplist", label: "Trending", icon: Zap },
     { href: "/ai-analyser", label: "AI Analyzer", icon: BrainCircuit },
     { href: "/docs", label: "Docs", icon: FileText },
   ];
