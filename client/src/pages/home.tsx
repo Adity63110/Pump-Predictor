@@ -178,8 +178,6 @@ export default function Home() {
               </div>
             </ScrollReveal>
           </div>
-
-          <AIAnalysisColumn />
         </div>
 
         {/* Home Trending Grid */}
