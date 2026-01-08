@@ -1,13 +1,103 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search, TrendingUp, AlertTriangle, ArrowRight, Activity, ShieldCheck, Zap } from "lucide-react";
+import { Search, TrendingUp, AlertTriangle, ArrowRight, Activity, ShieldCheck, Zap, CheckCircle2, BrainCircuit, Loader2 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { VotingBar } from "@/components/voting-bar";
 import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ScrollReveal } from "@/components/scroll-reveal";
+
+function AIAnalysisColumn() {
+  const [step, setStep] = useState(0);
+  const factors = [
+    "Dev wallet exposure",
+    "Insider concentration",
+    "Holder distribution",
+    "Bonding progress",
+    "Volume authenticity",
+    "Liquidity risk"
+  ];
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setStep((prev) => (prev + 1) % (factors.length + 1));
+    }, 2000);
+    return () => clearInterval(interval);
+  }, [factors.length]);
+
+  return (
+    <div className="w-full lg:w-80 shrink-0">
+      <ScrollReveal delay={0.4}>
+        <div className="relative group">
+          <div className="absolute -inset-0.5 bg-gradient-to-b from-[#54d292]/20 to-transparent rounded-xl blur opacity-50 group-hover:opacity-100 transition duration-500"></div>
+          <div className="relative bg-zinc-900/80 backdrop-blur-xl border border-zinc-800/50 rounded-xl p-5 shadow-2xl overflow-hidden">
+            {/* Scan Line Animation */}
+            <div className="absolute inset-x-0 h-[2px] bg-gradient-to-r from-transparent via-[#54d292]/50 to-transparent top-0 animate-[scan_3s_ease-in-out_infinite] pointer-events-none" />
+            
+            <div className="flex items-center gap-2 mb-6">
+              <div className="p-1.5 rounded-md bg-[#54d292]/10">
+                <BrainCircuit className="w-4 h-4 text-[#54d292]" />
+              </div>
+              <h3 className="text-xs font-black uppercase tracking-[0.2em] text-[#54d292]/80">AI Real-time Scan</h3>
+            </div>
+
+            <div className="space-y-4 mb-8">
+              {factors.map((factor, idx) => (
+                <div 
+                  key={factor} 
+                  className={cn(
+                    "flex items-center gap-3 transition-all duration-500",
+                    idx < step ? "opacity-100 translate-x-0" : "opacity-30 -translate-x-1"
+                  )}
+                >
+                  {idx < step ? (
+                    <CheckCircle2 className="w-3.5 h-3.5 text-[#54d292]" />
+                  ) : (idx === step ? (
+                    <Loader2 className="w-3.5 h-3.5 text-[#54d292] animate-spin" />
+                  ) : (
+                    <div className="w-3.5 h-3.5 rounded-full border border-zinc-700" />
+                  ))}
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-zinc-300">{factor}</span>
+                </div>
+              ))}
+            </div>
+
+            <div className="space-y-5 pt-5 border-t border-zinc-800/50">
+              <div className="space-y-2">
+                <div className="flex justify-between text-[10px] font-mono uppercase tracking-tighter text-zinc-500">
+                  <span>Rug Score Meter</span>
+                  <span className="text-[#54d292] animate-pulse">Waiting...</span>
+                </div>
+                <div className="h-1.5 w-full bg-zinc-800 rounded-full overflow-hidden">
+                  <div className="h-full w-1/3 bg-gradient-to-r from-[#54d292]/20 to-[#54d292]/40 rounded-full animate-[pulse_2s_infinite]" />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex justify-between text-[10px] font-mono uppercase tracking-tighter text-zinc-500">
+                  <span>Bonding Progress</span>
+                  <span>--%</span>
+                </div>
+                <div className="h-1.5 w-full bg-zinc-800 rounded-full overflow-hidden">
+                  <div className="h-full w-0 bg-[#54d292] rounded-full transition-all duration-1000" />
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between pt-2">
+                <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Verdict Status</span>
+                <span className="px-2 py-0.5 rounded text-[10px] font-black uppercase bg-zinc-800 text-zinc-400 italic">
+                  Pending
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </ScrollReveal>
+    </div>
+  );
+}
 
 export default function Home() {
   const [ca, setCa] = useState("");
@@ -53,26 +143,44 @@ export default function Home() {
           </p>
         </ScrollReveal>
 
-        {/* Main Search */}
-        <ScrollReveal delay={0.2} className="w-full max-w-2xl">
-          <div className="w-full max-w-2xl relative z-10 group mb-16">
-            <div className="absolute -inset-1 bg-gradient-to-r from-[#54d292]/30 via-[#54d292]/10 to-red-500/30 rounded-xl blur opacity-75 group-hover:opacity-100 transition duration-1000 group-hover:duration-200"></div>
-            <form onSubmit={handleSearch} className="relative flex gap-2 bg-zinc-900 p-2 rounded-xl border border-zinc-800 shadow-2xl">
-              <div className="relative flex-1">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-500" />
-                <Input 
-                  value={ca}
-                  onChange={(e) => setCa(e.target.value)}
-                  placeholder="Paste Contract Address (CA)..." 
-                  className="pl-12 h-14 text-lg bg-transparent border-none focus-visible:ring-0 placeholder:text-zinc-600 font-mono font-bold"
-                />
+        {/* Main Search and AI Column */}
+        <div className="w-full flex flex-col lg:flex-row gap-8 items-start mb-16 relative z-10">
+          <div className="flex-1 w-full space-y-12">
+            <ScrollReveal delay={0.2}>
+              <div className="w-full relative group">
+                <div className="absolute -inset-1 bg-gradient-to-r from-[#54d292]/30 via-[#54d292]/10 to-red-500/30 rounded-xl blur opacity-75 group-hover:opacity-100 transition duration-1000 group-hover:duration-200"></div>
+                <form onSubmit={handleSearch} className="relative flex gap-2 bg-zinc-900 p-2 rounded-xl border border-zinc-800 shadow-2xl">
+                  <div className="relative flex-1">
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-500" />
+                    <Input 
+                      value={ca}
+                      onChange={(e) => setCa(e.target.value)}
+                      placeholder="Paste Contract Address (CA)..." 
+                      className="pl-12 h-14 text-lg bg-transparent border-none focus-visible:ring-0 placeholder:text-zinc-600 font-mono font-bold"
+                    />
+                  </div>
+                  <Button size="lg" type="submit" className="h-14 px-6 sm:px-10 font-black text-lg bg-[#54d292] text-black hover:bg-white transition-all rounded-lg uppercase">
+                    Analyze <ArrowRight className="ml-2 w-5 h-5 hidden sm:inline" />
+                  </Button>
+                </form>
               </div>
-              <Button size="lg" type="submit" className="h-14 px-10 font-black text-lg bg-[#54d292] text-black hover:bg-white transition-all rounded-lg uppercase">
-                Analyze <ArrowRight className="ml-2 w-5 h-5" />
-              </Button>
-            </form>
+            </ScrollReveal>
+            
+            <ScrollReveal delay={0.1}>
+              <div className="text-left hidden lg:block">
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="w-2 h-2 rounded-full bg-[#54d292] animate-ping" />
+                  <span className="text-xs font-black uppercase tracking-[0.3em] text-[#54d292]">System Status: Online</span>
+                </div>
+                <p className="text-zinc-500 font-mono text-sm max-w-lg">
+                  VerdictX Engine is actively scanning Pump.fun mempool for high-signal launches. Real-time crowd sentiment is being aggregated every millisecond.
+                </p>
+              </div>
+            </ScrollReveal>
           </div>
-        </ScrollReveal>
+
+          <AIAnalysisColumn />
+        </div>
 
         {/* Home Trending Grid */}
         <div className="w-full max-w-7xl">
