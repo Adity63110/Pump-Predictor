@@ -80,7 +80,7 @@ export default function Home() {
             <div className="flex items-center justify-between mb-8 px-2">
               <div className="flex items-center gap-3">
                 <Zap className="w-6 h-6 text-[#54d292] animate-pulse" />
-                <h2 className="text-2xl font-black uppercase tracking-tight text-white">Live Trending</h2>
+                <h2 className="text-2xl font-black uppercase tracking-tight text-white">Top Trending</h2>
               </div>
               <Link href="/pumplist">
                 <Button variant="ghost" className="text-zinc-400 hover:text-[#54d292] font-bold uppercase tracking-widest text-xs">

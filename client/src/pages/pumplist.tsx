@@ -53,7 +53,7 @@ export default function PumpList() {
 
         <ScrollReveal delay={0.1}>
           <h1 className="text-4xl sm:text-6xl font-black tracking-tight mb-4 uppercase">
-            🔥 Trending Tokens
+            🔥 Top Trending
           </h1>
         </ScrollReveal>
         
