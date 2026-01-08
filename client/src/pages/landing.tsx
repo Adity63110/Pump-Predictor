@@ -6,8 +6,17 @@ import { ScrollReveal } from "@/components/scroll-reveal";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { useQuery } from "@tanstack/react-query";
+import { type Market } from "@shared/schema";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function LandingPage() {
+  const { data: markets, isLoading } = useQuery<Market[]>({
+    queryKey: ["/api/markets"],
+  });
+
+  const trendingMarkets = markets?.slice(0, 3) || [];
+
   const faqItems = [
     {
       q: "What is VerdictX?",
@@ -216,47 +225,53 @@ export default function LandingPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[
-              { name: "VerdictX AI", symbol: "VX", rugScore: "2/100", bonding: 85, vol: "$120k", risk: "Safe" },
-              { name: "Pump Signal", symbol: "PS", rugScore: "12/100", bonding: 42, vol: "$45k", risk: "Safe" },
-              { name: "Solana Alpha", symbol: "SA", rugScore: "45/100", bonding: 15, vol: "$12k", risk: "Caution" }
-            ].map((token, i) => (
-              <ScrollReveal key={token.symbol} delay={i * 0.1}>
-                <div className="p-6 bg-zinc-900/40 border border-zinc-800 rounded-xl hover:border-[#54d292]/30 transition-all cursor-pointer">
-                  <div className="flex justify-between items-start mb-6">
-                    <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 rounded bg-[#54d292]/10 flex items-center justify-center font-black text-[#54d292]">
-                        {token.symbol[0]}
-                      </div>
-                      <div>
-                        <h4 className="font-black uppercase text-white leading-none">{token.name}</h4>
-                        <span className="text-[10px] font-mono text-zinc-500">${token.symbol}</span>
-                      </div>
-                    </div>
-                    <div className={cn(
-                      "text-[10px] font-black uppercase px-2 py-0.5 rounded",
-                      token.risk === "Safe" ? "bg-[#54d292]/20 text-[#54d292]" : "bg-yellow-500/20 text-yellow-500"
-                    )}>
-                      {token.risk}
-                    </div>
-                  </div>
-
-                  <div className="space-y-4">
-                    <div className="flex justify-between text-[10px] font-black uppercase">
-                      <span className="text-zinc-500">24h Volume</span>
-                      <span className="text-white">{token.vol}</span>
-                    </div>
-                    <div className="space-y-1">
-                      <div className="flex justify-between text-[10px] font-black uppercase">
-                        <span className="text-zinc-500">Bonding</span>
-                        <span className="text-[#54d292]">{token.bonding}%</span>
-                      </div>
-                      <div className="h-1 bg-zinc-800 rounded-full overflow-hidden">
-                        <div className="h-full bg-[#54d292]" style={{ width: `${token.bonding}%` }} />
-                      </div>
-                    </div>
-                  </div>
+            {isLoading ? (
+              Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} className="p-6 bg-zinc-900/40 border border-zinc-800 rounded-xl">
+                  <Skeleton className="h-10 w-full mb-6 bg-zinc-800" />
+                  <Skeleton className="h-4 w-full mb-2 bg-zinc-800" />
+                  <Skeleton className="h-4 w-2/3 bg-zinc-800" />
                 </div>
+              ))
+            ) : trendingMarkets.map((token, i) => (
+              <ScrollReveal key={token.id} delay={i * 0.1}>
+                <Link href={`/market/${token.id}`}>
+                  <div className="p-6 bg-zinc-900/40 border border-zinc-800 rounded-xl hover:border-[#54d292]/30 transition-all cursor-pointer">
+                    <div className="flex justify-between items-start mb-6">
+                      <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 rounded bg-[#54d292]/10 flex items-center justify-center font-black text-[#54d292]">
+                          {token.symbol[0]}
+                        </div>
+                        <div>
+                          <h4 className="font-black uppercase text-white leading-none">{token.name}</h4>
+                          <span className="text-[10px] font-mono text-zinc-500">${token.symbol}</span>
+                        </div>
+                      </div>
+                      <div className={cn(
+                        "text-[10px] font-black uppercase px-2 py-0.5 rounded",
+                        token.rugScale <= 30 ? "bg-[#54d292]/20 text-[#54d292]" : "bg-yellow-500/20 text-yellow-500"
+                      )}>
+                        {token.rugScale <= 30 ? "Safe" : "Caution"}
+                      </div>
+                    </div>
+
+                    <div className="space-y-4">
+                      <div className="flex justify-between text-[10px] font-black uppercase">
+                        <span className="text-zinc-500">Rug Score</span>
+                        <span className="text-white">{token.rugScale}/100</span>
+                      </div>
+                      <div className="space-y-1">
+                        <div className="flex justify-between text-[10px] font-black uppercase">
+                          <span className="text-zinc-500">Volume</span>
+                          <span className="text-[#54d292]">${(token.volume24h / 1000).toFixed(1)}k</span>
+                        </div>
+                        <div className="h-1 bg-zinc-800 rounded-full overflow-hidden">
+                          <div className="h-full bg-[#54d292]" style={{ width: `${Math.min((token.volume24h / 100000) * 100, 100)}%` }} />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </Link>
               </ScrollReveal>
             ))}
           </div>
