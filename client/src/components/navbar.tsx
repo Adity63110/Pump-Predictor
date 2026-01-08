@@ -1,6 +1,6 @@
 import { Link, useLocation } from "wouter";
 import { TrendingUp, Home, BrainCircuit, FileText, Zap } from "lucide-react";
-import logoPng from "@assets/ChatGPT_Image_Jan_7,_2026,_06_42_47_PM_1767791577817.png";
+import logoPng from "@assets/ChatGPT_Image_Jan_8,_2026,_08_31_28_PM_1767884703801.png";
 
 export function Navbar() {
   const [location] = useLocation();
