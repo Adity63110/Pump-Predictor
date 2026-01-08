@@ -228,6 +228,24 @@ export default function TokenRoom() {
                   </Button>
                </div>
                
+               {token.aiDescription && (
+                 <div className="mt-8 p-6 bg-zinc-900/50 rounded-lg border border-border/50 relative overflow-hidden group">
+                   <div className="absolute top-0 right-0 p-2 opacity-20">
+                     <BrainCircuit className="w-12 h-12 text-[#54d292]" />
+                   </div>
+                   <h3 className="text-sm font-black uppercase tracking-widest text-[#54d292] mb-3 flex items-center gap-2">
+                     <Zap className="w-4 h-4 animate-pulse" />
+                     AI Insight Breakdown
+                   </h3>
+                   <p className="text-sm text-zinc-300 leading-relaxed font-medium italic">
+                     "{token.aiDescription}"
+                   </p>
+                   <div className="mt-4 flex items-center gap-2">
+                     <span className="text-[10px] font-mono text-zinc-500 uppercase tracking-tighter">Verified by VerdictX Engine v2.4</span>
+                   </div>
+                 </div>
+               )}
+               
                {userVote && (
                    <p className="text-center text-xs text-muted-foreground mt-4 animate-in fade-in slide-in-from-bottom-2">
                        Your verdict has been recorded.

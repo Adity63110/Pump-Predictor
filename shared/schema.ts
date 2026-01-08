@@ -24,6 +24,7 @@ export const markets = pgTable("markets", {
   wVotes: integer("w_votes").notNull().default(0),
   trashVotes: integer("trash_votes").notNull().default(0),
   chartData: jsonb("chart_data").notNull().default([]),
+  aiDescription: text("ai_description").default(""),
 });
 
 export const votes = pgTable("votes", {

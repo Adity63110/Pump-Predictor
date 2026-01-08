@@ -359,10 +359,10 @@ export async function registerRoutes(
         - Use terms like "Momentum Potential", "Survival Likelihood", or "Market Health" instead of profitability.
         - AVOID terms like "Safe", "Profitable", or "Guaranteed".
 
-        Respond with a JSON object: { "riskLevel": "Low" | "Medium" | "High", "confidence": "Weak" | "Moderate" | "Strong", "reasons": ["string"], "reasoning": "string" }`;
+        Respond with a JSON object: { "riskLevel": "Low" | "Medium" | "High", "confidence": "Weak" | "Moderate" | "Strong", "reasons": ["string"], "reasoning": "string", "aiDescription": "string (A detailed, somewhat long description of the token's project, utility, and current sentiment in the crypto space. Around 100-150 words.)" }`;
 
         const response = await openai.chat.completions.create({
-          model: "gpt-5.1",
+          model: "gpt-4o",
           messages: [{ role: "user", content: prompt }],
           response_format: { type: "json_object" },
         });
@@ -384,6 +384,7 @@ export async function registerRoutes(
           launchTime: new Date().toISOString(),
           devWalletPct: marketData.devShare.replace("%", ""),
           rugScale: marketData.rugScore,
+          aiDescription: analysis.aiDescription || "",
         });
 
         // Also add to Supabase trending_tokens if configured
