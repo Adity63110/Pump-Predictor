@@ -6,7 +6,7 @@ export function Navbar() {
   const [location] = useLocation();
 
   const navItems = [
-    { href: "/", label: "Home", icon: Home },
+    { href: "/", label: "Markets", icon: Home },
     { href: "/pumplist", label: "Trending", icon: TrendingUp },
     { href: "/ai-analyser", label: "AI Analyzer", icon: BrainCircuit },
     { href: "/docs", label: "Docs", icon: FileText },
