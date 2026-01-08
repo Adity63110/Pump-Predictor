@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { VotingBar } from "@/components/voting-bar";
 import { RugScale } from "@/components/rug-scale";
 import { ChatBox } from "@/components/chat-box";
-import { ArrowLeft, Copy, ExternalLink, ThumbsUp, ThumbsDown, AlertOctagon, Share2, Activity, BrainCircuit } from "lucide-react";
+import { ArrowLeft, Copy, ExternalLink, ThumbsUp, ThumbsDown, AlertOctagon, Share2, Activity, BrainCircuit, Zap } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { ScrollReveal } from "@/components/scroll-reveal";

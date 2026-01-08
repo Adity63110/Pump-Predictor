@@ -370,6 +370,8 @@ export async function registerRoutes(
         analysis = JSON.parse(response.choices[0].message.content || "{}");
       }
       
+      const aiDescription = (analysis as any).aiDescription || "";
+
       // Market already fetched in parallel earlier
       let finalMarket = market;
       if (!finalMarket && typeof marketData !== 'undefined') {
@@ -384,7 +386,7 @@ export async function registerRoutes(
           launchTime: new Date().toISOString(),
           devWalletPct: marketData.devShare.replace("%", ""),
           rugScale: marketData.rugScore,
-          aiDescription: analysis.aiDescription || "",
+          aiDescription: aiDescription,
         });
 
         // Also add to Supabase trending_tokens if configured
